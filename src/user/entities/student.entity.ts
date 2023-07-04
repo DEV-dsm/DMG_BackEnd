@@ -4,10 +4,10 @@ import { User } from "./user.entity";
 @Entity('students')
 @Unique(['github', 'number'])
 export class Student {
-    @Column()
+    @Column({ nullable: true })
     major: string;
 
-    @Column()
+    @Column({ nullable: true })
     github: string;
 
     @Column()

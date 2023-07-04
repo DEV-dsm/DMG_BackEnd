@@ -6,7 +6,7 @@ export class Teacher {
     @Column()
     location: string;
 
-    @Column()
+    @Column({ nullable: true })
     subject: string;
 
     @Column()
