@@ -5,9 +5,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Student, Teacher])],
+  imports: [
+    TypeOrmModule.forFeature([User, Student, Teacher]),
+    JwtModule.register({
+      secret: process.env.SECRETORPRIVATE,
+      signOptions: {
+        expiresIn: '4h',
+      },
+      verifyOptions: {
+        complete: false
+      }
+    })
+  ],
   providers: [UserService],
   controllers: [UserController]
 })
