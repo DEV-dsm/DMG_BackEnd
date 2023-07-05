@@ -31,4 +31,38 @@ export class UserController {
             statusMsg: "계정 생성 완료"
         })
     }
+
+    @ApiOperation({
+        summary: "비밀번호 수정 (로그인한 상태)",
+        description: "로그인이 되어있는 상태에서 하는 비밀번호 수정"
+    })
+    @ApiHeader({ name: "accessToken", required: true })
+    @ApiHeader({ name: "refreshToken", required: true })
+    @ApiBody({ type: passwordDto })
+    @ApiOkResponse({
+        status: 200,
+        description: "비밀번호 성공적 수정"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "토큰이 유효하지 않은 경우"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "토큰 디코딩 시 존재하지 않는 유저인 경우"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "비밀번호가 일치하지 않는 경우"
+    })
+    @Patch('/password')
+    async patchPW(@Headers() tokenDto: tokenDto, @Body() passwordDto: passwordDto): Promise<object> {
+        const data = await this.userService.patchPW(tokenDto, passwordDto);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "비밀번호가 수정되었습니다."
+        })
+    }
 }
