@@ -169,6 +169,7 @@ export class UserService {
         // 비밀번호 비교
         if (!await bcrypt.compare(pwSet.password, thisUser.password)) throw new ConflictException('비밀번호 불일치');
         if (pwSet.password == pwSet.newPassword) throw new ConflictException('기존 비밀번호와 새 비밀번호 일치');
+        if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(pwSet.newPassword)) throw new ConflictException('비밀번호 규칙 미반영')
 
         // 새로운 비밀번호 해싱
         const newHashedPW = await bcrypt.hash(pwSet.newPassword, 10)
