@@ -121,10 +121,9 @@ export class UserService {
      * 
      * 토큰 검증
      */
-    async validateAccess(tokenDto: tokenDto): Promise<userPayloadDto> {
+    async validateAccess(accesstoken: string): Promise<userPayloadDto> {
         // Bearer Token에서 순수 jwt값만 분리
-        const accessToken = tokenDto.accesstoken.split(' ')[1];
-        const refreshToken = tokenDto.refreshtoken.split(' ')[1];
+        const accessToken = accesstoken.split(' ')[1];
 
         // 액세스 토큰 검증
         const access = await this.jwt.verify(accessToken, {
@@ -132,22 +131,27 @@ export class UserService {
         })
             
         // 검증되지 않은 액세스 토큰
-        if (!access) {
-            // 리프레시 토큰 검증
-            const refresh = await this.jwt.verify(refreshToken, {
-                secret: process.env.JWT_SECRET_REFRESH
-            })
+        if (!access) throw new UnauthorizedException("리프레시 토큰 검증 필요");
 
-            // 검증되지 않은 리프레시 토큰
-            if (!refresh) throw new UnauthorizedException();
-
-            return refresh;
-        }
-        
         return access;
     }
 
-		/**
+    async validateRefresh(refreshtoken: string): Promise<userPayloadDto>{
+        // Bearer Token에서 순수 jwt값만 분리
+        const refreshToken = refreshtoken.split(' ')[1];
+
+        // 리프레시 토큰 검증
+        const refresh = await this.jwt.verify(refreshToken, {
+            secret: process.env.JWT_SECRET_REFRESH
+        })
+
+        // 검증되지 않은 리프레시 토큰
+        if (!refresh) throw new UnauthorizedException("재로그인 필요");
+
+        return refresh;
+    }
+
+	/**
      * 
      * @param tokenDto 
      * @param pwSet 
@@ -155,15 +159,16 @@ export class UserService {
      * 
      * 비밀번호 수정
      */
-    async patchPW(tokenDto: tokenDto, pwSet: passwordDto): Promise<object> {
-        const { userID } = await this.validateAccess(tokenDto);
+    async patchPW(accesstoken, pwSet: passwordDto): Promise<object> {
+        const { userID } = await this.validateAccess(accesstoken);
 
         const thisUser = await this.userEntity.findOneBy({ userID });
 
         if (!thisUser) throw new NotFoundException();
 
         // 비밀번호 비교
-        if (!await bcrypt.compare(pwSet.password, thisUser.password)) throw new ConflictException();
+        if (!await bcrypt.compare(pwSet.password, thisUser.password)) throw new ConflictException('비밀번호 불일치');
+        if (pwSet.password == pwSet.newPassword) throw new ConflictException('기존 비밀번호와 새 비밀번호 일치');
 
         // 새로운 비밀번호 해싱
         const newHashedPW = await bcrypt.hash(pwSet.newPassword, 10)

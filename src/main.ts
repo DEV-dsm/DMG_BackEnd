@@ -17,6 +17,8 @@ async function bootstrap() {
 
   SwaggerModule.setup('', app, doc); // document 주소
 
+  app.enableCors();
+
   await app.listen(port);
 }
 bootstrap();

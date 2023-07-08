@@ -4,6 +4,7 @@ import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { passwordDto } from './dto/password.dto';
 import { tokenDto } from './dto/token.dto';
+import { userPayloadDto } from './dto/userPayload.dto';
 import { UserService } from './user.service';
 
 @ApiTags('/user')
@@ -37,7 +38,6 @@ export class UserController {
         description: "로그인이 되어있는 상태에서 하는 비밀번호 수정"
     })
     @ApiHeader({ name: "accessToken", required: true })
-    @ApiHeader({ name: "refreshToken", required: true })
     @ApiBody({ type: passwordDto })
     @ApiOkResponse({
         status: 200,
@@ -53,11 +53,19 @@ export class UserController {
     })
     @ApiConflictResponse({
         status: 409,
-        description: "비밀번호가 일치하지 않는 경우"
+        description: "기존 비밀번호와 새 비밀번호가 일치하는 경우"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "기존 비밀번호가 계정의 비밀번호와 일치하지 않는 경우"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "비밀번호 규칙에 맞지 않는 경우"
     })
     @Patch('/password')
-    async patchPW(@Headers() tokenDto: tokenDto, @Body() passwordDto: passwordDto): Promise<object> {
-        const data = await this.userService.patchPW(tokenDto, passwordDto);
+    async patchPW(@Headers('authorization') accesstoken: string, @Body() passwordDto: passwordDto): Promise<object> {
+        const data = await this.userService.patchPW(accesstoken, passwordDto);
 
         return Object.assign({
             data,
