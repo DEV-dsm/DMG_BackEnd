@@ -1,22 +1,24 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn, Unique } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
 
 @Entity('students')
-@Unique(['github', 'number'])
 export class Student {
-    @Column({ nullable: true })
+    @PrimaryColumn()
+    userID: number;
+
+    @Column({ nullable: true, default: '미정' })
     major: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, default: '없음' })
     github: string;
 
     @Column()
     number: number;
 
     @OneToOne(
-        () => User
+        () => User,
+        user => user.student
     )
     @JoinColumn({ name: 'userID' })
-    @PrimaryColumn()
-    userID: number;
+    user: User;
 }
