@@ -1,10 +1,9 @@
 import { Body, Controller, Headers, Patch, Post, UseFilters } from '@nestjs/common';
-import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiHeaders, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { passwordDto } from './dto/password.dto';
-import { tokenDto } from './dto/token.dto';
-import { userPayloadDto } from './dto/userPayload.dto';
 import { UserService } from './user.service';
 
 @ApiTags('/user')
@@ -16,6 +15,7 @@ export class UserController {
     ) {
         this.userService = userService;
     }    
+
     @ApiOperation({ summary: "회원가입", description: "회원가입 API" })
     @ApiBody({ type: createAccDevDto })
     @ApiCreatedResponse({
@@ -30,6 +30,23 @@ export class UserController {
             data,
             statusCode: 201,
             statusMsg: "계정 생성 완료"
+        })
+    }
+
+    @ApiOperation({ summary: "로그인", description: "로그인 API" })
+    @ApiBody({ type: LoginUserDto })
+    @ApiOkResponse({
+        status: 200,
+        description: "로그인 완료"
+    })
+    @Post('login')
+    async login(@Body() loginDto: LoginUserDto) {
+        const data = await this.userService.login(loginDto);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "로그인이 완료되었습니다."
         })
     }
 

@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException, UseFilters } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException, UseFilters } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Redis } from 'ioredis';
 import { Repository } from 'typeorm';
@@ -13,6 +13,7 @@ import { userPayloadDto } from './dto/userPayload.dto';
 import * as bcrypt from 'bcrypt';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -26,6 +27,7 @@ export class UserService {
     ) {
         this.redis = redis;
     }
+
     /**
      * 
      * @param userDto 
@@ -33,53 +35,93 @@ export class UserService {
      * 
      * 회원가입
      */
-
     async createAcc(userDto: createAccDevDto) {
-        const { identify, name, password, email, isStudent } = userDto;
+        const { identify, name, password, email, isStudent, profile, background } = userDto;
 
-        // 아이디 중복 제거
+        // 아이디 중복 확인
         const havingThisUserByID = await this.userEntity.findOneBy({ identify });
         if (havingThisUserByID) throw new ConflictException('아이디 중복');
 
-        // 이메일 중복 제거
+        // 이메일 중복 확인
         const havingThisUserByEmail = await this.userEntity.findOneBy({ email });
         if (havingThisUserByEmail) throw new ConflictException('이메일 중복');
 
         const hashedPW = await bcrypt.hash(password, 10);
 
+        await this.userEntity.save({
+            identify,
+            name,
+            password: hashedPW,
+            email,
+            isStudent: isStudent,
+            profile,
+            background
+        })
+
+        // 학생, 교사 테이블의 userID 값을 넣기위한 코드
+        const findUser = await this.userEntity.findOneBy({ identify });
+
         // 학생일 경우
         if (isStudent) {
             const { major, github, number } = userDto;
 
-            const thisUser = await this.userEntity.save({
-                identify,
-                name,
-                password: hashedPW,
-                email,
-                isStudent: true,
+            const student = await this.studentEntity.save({
+                userID: findUser.userID,
                 major,
                 github,
                 number
             })
 
-            return thisUser;
+            return {
+                student
+            }
         }
         
         // 교사일 경우
         const { location, subject, duty } = userDto;
 
-        const thisUser = await this.userEntity.save({
-            identify,
-            name,
-            password: hashedPW,
-            email,
-            isStudent: false,
+        const teacher = await this.teacherEntity.save({
+            userID: findUser.userID,
             location,
             subject,
             duty
         })
 
-        return thisUser;
+        return {
+            teacher
+        }
+    }
+
+    /**
+     * 
+     * @param userDto 
+     * @returns UserAccount
+     * 
+     * 로그인
+     */
+    async login(userDto: LoginUserDto): Promise<object> {
+        const { identify, password } = userDto;
+
+        const user = await this.userEntity.findOneBy({ identify });
+
+        if (!user) throw new NotFoundException('존재하지 않는 유저');
+
+        // 비밀번호 비교
+        const isMatching = await bcrypt.compare(password, user.password);
+        if (!isMatching) throw new BadRequestException('비밀번호 불일치');
+
+        const payload = {
+            userID: user.userID,
+            identify
+        }
+
+        const access = await this.generateAccess(payload);
+        const refresh = await this.generateRefresh(payload);
+
+        return {
+            access,
+            refresh
+        }
     }
     
     /**
