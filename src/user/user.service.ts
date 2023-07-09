@@ -108,7 +108,7 @@ export class UserService {
 
         // 비밀번호 비교
         const isMatching = await bcrypt.compare(password, user.password);
-        if (!isMatching) throw new BadRequestException('비밀번호 불일치');
+        if (!isMatching) throw new ConflictException('비밀번호 불일치');
 
         const payload = {
             userID: user.userID,
