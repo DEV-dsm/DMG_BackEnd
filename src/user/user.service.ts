@@ -53,12 +53,12 @@ export class UserService {
             name,
             password: hashedPW,
             email,
-            isStudent: isStudent,
+            isStudent,
             profile,
             background
         })
 
-        // 학생, 교사 테이블의 userID 값을 넣기위한 코드
+        // 학생, 교사 테이블에 userID 값을 넣기위한 코드
         const findUser = await this.userEntity.findOneBy({ identify });
 
         // 학생일 경우

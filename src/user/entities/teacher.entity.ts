@@ -6,13 +6,13 @@ export class Teacher {
     @PrimaryColumn()
     userID: number;
 
-    @Column({ nullable: true })
+    @Column()
     location: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, default: '없음' })
     subject: string;
 
-    @Column({ nullable: true })
+    @Column()
     duty: string;
 
     @OneToOne(

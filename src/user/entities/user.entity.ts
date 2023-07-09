@@ -25,7 +25,7 @@ export class User {
     @Column({ nullable: true })
     background: string;
 
-    @Column({ default: true })
+    @Column()
     isStudent: boolean;
 
     @OneToOne(
