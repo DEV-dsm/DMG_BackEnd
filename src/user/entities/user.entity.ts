@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Student } from "./student.entity";
+import { Teacher } from "./teacher.entity";
 
 @Entity('users')
-@Unique(['identify', 'email'])
 export class User {
     @PrimaryGeneratedColumn()
     userID: number;
@@ -24,6 +25,18 @@ export class User {
     @Column({ nullable: true })
     background: string;
 
-    @Column({ default: 1 })
+    @Column({ default: true })
     isStudent: boolean;
+
+    @OneToOne(
+        () => Student,
+        student => student.user
+    )
+    student: Student;
+
+    @OneToOne(
+        () => Teacher,
+        teacher => teacher.user
+    )
+    teacher: Teacher;
 }

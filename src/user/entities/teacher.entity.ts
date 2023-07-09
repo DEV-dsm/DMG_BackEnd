@@ -3,19 +3,22 @@ import { User } from "./user.entity";
 
 @Entity('teachers')
 export class Teacher {
-    @Column()
+    @PrimaryColumn()
+    userID: number;
+
+    @Column({ nullable: true })
     location: string;
 
     @Column({ nullable: true })
     subject: string;
 
-    @Column()
+    @Column({ nullable: true })
     duty: string;
 
     @OneToOne(
-        () => User
+        () => User,
+        user => user.teacher
     )
     @JoinColumn({ name: 'userID' })
-    @PrimaryColumn()
-    userID: number;
+    user: User;
 }
