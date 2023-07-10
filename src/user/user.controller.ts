@@ -22,6 +22,10 @@ export class UserController {
         status: 201,
         description: "계정 생성 완료"
     })
+    @ApiConflictResponse({
+        status: 409,
+        description: "아이디 / 이메일 중복"
+    })
     @Post('createAcc')
     async createUserAcc(@Body() userAccDto: createAccDevDto) {
         const data = await this.userService.createAcc(userAccDto);
@@ -54,7 +58,7 @@ export class UserController {
         summary: "비밀번호 수정 (로그인한 상태)",
         description: "로그인이 되어있는 상태에서 하는 비밀번호 수정"
     })
-    @ApiHeader({ name: "accessToken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiBody({ type: passwordDto })
     @ApiOkResponse({
         status: 200,

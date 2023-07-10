@@ -17,7 +17,9 @@ export class Teacher {
 
     @OneToOne(
         () => User,
-        user => user.teacher
+        user => user.teacher, {
+            cascade: ["insert", "update", "remove"]
+        }
     )
     @JoinColumn({ name: 'userID' })
     user: User;

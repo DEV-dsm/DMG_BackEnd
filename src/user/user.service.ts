@@ -67,6 +67,7 @@ export class UserService {
 
             const student = await this.studentEntity.save({
                 userID: findUser.userID,
+                user: findUser,
                 major,
                 github,
                 number
@@ -82,6 +83,7 @@ export class UserService {
 
         const teacher = await this.teacherEntity.save({
             userID: findUser.userID,
+            user: findUser,
             location,
             subject,
             duty
@@ -201,7 +203,7 @@ export class UserService {
      * 
      * 비밀번호 수정
      */
-    async patchPW(accesstoken, pwSet: passwordDto): Promise<object> {
+    async patchPW(accesstoken: string, pwSet: passwordDto): Promise<object> {
         const { userID } = await this.validateAccess(accesstoken);
 
         const thisUser = await this.userEntity.findOneBy({ userID });
@@ -225,4 +227,4 @@ export class UserService {
 
         return patchedUser;
     }
- }
+}
