@@ -1,9 +1,11 @@
 import { Body, Controller, Headers, Patch, Post, UseFilters } from '@nestjs/common';
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
+import { MailService } from 'src/mail/mail.service';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { passwordDto } from './dto/password.dto';
+import { SendEmailDto } from './dto/send-email.dto';
 import { UserService } from './user.service';
 
 @ApiTags('/user')
@@ -12,6 +14,7 @@ import { UserService } from './user.service';
 export class UserController {
     constructor(
         private userService: UserService,
+        private mailService: MailService
     ) {
         this.userService = userService;
     }    
@@ -43,6 +46,14 @@ export class UserController {
         status: 200,
         description: "로그인 완료"
     })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 유저"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "비밀번호 불일치"
+    })
     @Post('login')
     async login(@Body() loginDto: LoginUserDto) {
         const data = await this.userService.login(loginDto);
@@ -51,6 +62,27 @@ export class UserController {
             data,
             statusCode: 200,
             statusMsg: "로그인이 완료되었습니다."
+        })
+    }
+
+    @ApiOperation({ summary: "이메일 발송", description: "이메일로 인증코드 발송 API"})
+    @ApiBody({ type: SendEmailDto })
+    @ApiOkResponse({
+        status: 200,
+        description: "해당 이메일로 인증번호 발송 완료"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 이메일"
+    })
+    @Post('email')
+    async sendEmail(@Body() emailDto: SendEmailDto) {
+        const data = await this.mailService.sendEmail(emailDto);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "인증번호 이메일 발송이 완료되었습니다."
         })
     }
 

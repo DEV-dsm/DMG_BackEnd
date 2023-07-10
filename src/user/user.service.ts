@@ -1,10 +1,9 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException, UseFilters } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException, UseFilters } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Redis } from 'ioredis';
 import { Repository } from 'typeorm';
 import { passwordDto } from './dto/password.dto';
-import { tokenDto } from './dto/token.dto';
 import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
 import { User } from './entities/user.entity';

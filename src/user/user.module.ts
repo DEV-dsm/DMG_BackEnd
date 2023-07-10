@@ -6,7 +6,7 @@ import { User } from './entities/user.entity';
 import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { MailService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { ConfigService } from '@nestjs/config';
       }
     })
   ],
-  providers: [UserService],
+  providers: [UserService, MailService],
   controllers: [UserController]
 })
 export class UserModule {}
