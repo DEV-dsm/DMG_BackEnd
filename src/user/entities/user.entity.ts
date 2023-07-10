@@ -1,4 +1,5 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { QuestionEntity } from "./question.entity";
 import { Student } from "./student.entity";
 import { Teacher } from "./teacher.entity";
 
@@ -39,4 +40,10 @@ export class User {
         teacher => teacher.user
     )
     teacher: Teacher;
+
+    @OneToMany(
+        () => QuestionEntity,
+        question => question.user
+    )
+    question: QuestionEntity[];
 }
