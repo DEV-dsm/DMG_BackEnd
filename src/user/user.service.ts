@@ -14,6 +14,8 @@ import * as bcrypt from 'bcrypt';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { QuestionDto } from './dto/question.dto';
+import { QuestionEntity } from './entities/question.entity';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -23,6 +25,7 @@ export class UserService {
         @InjectRepository(Student) private studentEntity: Repository<Student>,
         @InjectRepository(Teacher) private teacherEntity: Repository<Teacher>,
         @InjectRepository(User) private userEntity: Repository<User>,
+        @InjectRepository(QuestionEntity) private questionEntity: Repository<QuestionEntity>,
         private jwt: JwtService,
     ) {
         this.redis = redis;
@@ -208,8 +211,6 @@ export class UserService {
 
         const thisUser = await this.userEntity.findOneBy({ userID });
 
-        if (!thisUser) throw new NotFoundException();
-
         // 비밀번호 비교
         if (!await bcrypt.compare(pwSet.password, thisUser.password)) throw new ConflictException('비밀번호 불일치');
         if (pwSet.password == pwSet.newPassword) throw new ConflictException('기존 비밀번호와 새 비밀번호 일치');
@@ -226,5 +227,20 @@ export class UserService {
         })
 
         return patchedUser;
+    }
+
+    async question(accesstoken: string, question: QuestionDto): Promise<object> {
+        const { userID } = await this.validateAccess(accesstoken);
+
+        const thisUser = await this.userEntity.findOneBy({ userID });
+
+        const thisQuestion = await this.questionEntity.save({
+            userID,
+            user: thisUser,
+            title: question.title,
+            content: question.content
+        })
+
+        return thisQuestion;
     }
 }
