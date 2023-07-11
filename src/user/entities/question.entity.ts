@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "t
 import { User } from "./user.entity";
 
 @Entity()
-export class QuestionEntity {
+export class Question {
     @PrimaryGeneratedColumn({
         type: "integer",
     })

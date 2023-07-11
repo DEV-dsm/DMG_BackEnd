@@ -5,7 +5,6 @@ import { MailService } from 'src/mail/mail.service';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { passwordDto } from './dto/password.dto';
-import { SendEmailDto } from './dto/send-email.dto';
 import { QuestionDto } from './dto/question.dto';
 import { UserService } from './user.service';
 
@@ -67,7 +66,7 @@ export class UserController {
     }
 
     @ApiOperation({ summary: "이메일 발송", description: "이메일로 인증코드 발송 API"})
-    @ApiBody({ type: SendEmailDto })
+    @ApiBody({ type: 'string' })
     @ApiOkResponse({
         status: 200,
         description: "해당 이메일로 인증번호 발송 완료"
@@ -129,6 +128,35 @@ export class UserController {
     }
 
     @ApiOperation({
+        summary: "비밀번호 찾기 API",
+        description: "비로그인 상태에서 비밀번호를 알 수 없게 된 경우"
+    })
+    @ApiBody({ type: 'number' })
+    @ApiBody({ type: 'string' })
+    @ApiOkResponse({
+        status: 200,
+        description: "비밀번호 성공적 수정"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "찾을 수 없는 유저"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "비밀번호 규칙 미반영"
+    })
+    @Patch('findPW')
+    async findPW(@Body('email') email: string, @Body('newPassword') newPassword: string): Promise<object> {
+        const data = await this.userService.findPW(email, newPassword);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "비밀번호가 수정되었습니다."
+        })
+    }
+        
+    @ApiOperation({
         summary: "문의 API",
         description: "불만 사항 / 업데이트 건의 / 오류 등 발생 시 문의할 수 있음"
     })
@@ -149,7 +177,7 @@ export class UserController {
         const data = await this.userService.question(accesstoken, questionDto);
 
         return Object.assign({
-            data: data,
+            data,
             statusCode: 201,
             statusMsg: "문의가 완료되었습니다."
         })
