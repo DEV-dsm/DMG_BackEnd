@@ -50,7 +50,7 @@ export class MailService {
             return Math.floor(Math.random() * (max - min + 1)) + min;
         };
         
-        const number = generateRandom(111111, 999999);
+        const number = String(generateRandom(1, 999999)).padStart(6, '0');
 
         // 메일 형식
         const mailOptions: EmailOptions = {
