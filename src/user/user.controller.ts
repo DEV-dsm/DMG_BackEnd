@@ -6,6 +6,7 @@ import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { passwordDto } from './dto/password.dto';
 import { SendEmailDto } from './dto/send-email.dto';
+import { QuestionDto } from './dto/question.dto';
 import { UserService } from './user.service';
 
 @ApiTags('/user')
@@ -124,6 +125,33 @@ export class UserController {
             data,
             statusCode: 200,
             statusMsg: "비밀번호가 수정되었습니다."
+        })
+    }
+
+    @ApiOperation({
+        summary: "문의 API",
+        description: "불만 사항 / 업데이트 건의 / 오류 등 발생 시 문의할 수 있음"
+    })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiBody({
+        type: QuestionDto,
+    })
+    @ApiOkResponse({
+        status: 200,
+        description: ""
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: ""
+    })
+    @Post('question')
+    async question(@Headers('authorization') accesstoken: string, @Body() questionDto: QuestionDto): Promise<object>{
+        const data = await this.userService.question(accesstoken, questionDto);
+
+        return Object.assign({
+            data: data,
+            statusCode: 201,
+            statusMsg: "문의가 완료되었습니다."
         })
     }
 }
