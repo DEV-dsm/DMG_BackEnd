@@ -8,11 +8,11 @@ import { Teacher } from './entities/teacher.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { MailService } from 'src/mail/mail.service';
 import { ConfigService } from '@nestjs/config';
-import { QuestionEntity } from './entities/question.entity';
+import { Question } from './entities/question.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Student, Teacher, QuestionEntity]),
+    TypeOrmModule.forFeature([User, Student, Teacher, Question]),
     JwtModule.register({
       secret: process.env.SECRETORPRIVATE,
       signOptions: {

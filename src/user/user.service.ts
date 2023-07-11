@@ -14,7 +14,7 @@ import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { QuestionDto } from './dto/question.dto';
-import { QuestionEntity } from './entities/question.entity';
+import { Question } from './entities/question.entity';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -24,7 +24,7 @@ export class UserService {
         @InjectRepository(Student) private studentEntity: Repository<Student>,
         @InjectRepository(Teacher) private teacherEntity: Repository<Teacher>,
         @InjectRepository(User) private userEntity: Repository<User>,
-        @InjectRepository(QuestionEntity) private questionEntity: Repository<QuestionEntity>,
+        @InjectRepository(Question) private questionEntity: Repository<Question>,
         private jwt: JwtService,
     ) {
         this.redis = redis;
@@ -121,6 +121,9 @@ export class UserService {
 
         const access = await this.generateAccess(payload);
         const refresh = await this.generateRefresh(payload);
+
+        await this.redis.set(`${user.userID}AccessToken`, access);
+        await this.redis.set(`${user.userID}RefreshToken`, refresh);
 
         return {
             access,
@@ -228,6 +231,35 @@ export class UserService {
         return patchedUser;
     }
 
+    /**
+     * 
+     * @param newPassword 
+     * @returns pw
+     */
+    async findPW(email: string, newPassword: string): Promise<object> {
+        const { userID } = await this.userEntity.findOneBy({ email });
+
+        if (!userID) throw new NotFoundException();
+
+        if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(newPassword)) throw new ConflictException('비밀번호 규칙 미반영')
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        const updatedUser = await this.userEntity.update({
+            userID,
+        }, {
+            password: hashedNewPassword
+        })
+
+        return updatedUser;
+    }
+
+    /**
+     * 
+     * @param accesstoken 
+     * @param question 
+     * @returns thisQuestion
+     */
     async question(accesstoken: string, question: QuestionDto): Promise<object> {
         const { userID } = await this.validateAccess(accesstoken);
 
