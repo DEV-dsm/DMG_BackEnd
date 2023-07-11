@@ -5,6 +5,7 @@ import * as nodemailer from 'nodemailer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
+import { where } from 'sequelize';
 
 // 메일 옵션 타입
 interface EmailOptions {
@@ -39,8 +40,7 @@ export class MailService {
      * 
      * 이메일 발송
      */
-    async sendEmail(emailDto: SendEmailDto) {
-        const { email } = emailDto;
+    async sendEmail(email: string) {
         const existEmail = await this.userEntity.findOneBy({ email });
 
         if (!existEmail) throw new NotFoundException('존재하지 않는 이메일');
@@ -54,7 +54,7 @@ export class MailService {
 
         // 메일 형식
         const mailOptions: EmailOptions = {
-            to: emailDto.email,
+            to: email,
             from: process.env.USER_MAIL,
             subject: '[DMG] 이메일 인증 관련 메일입니다.',
             html: `인증번호 ${number}`

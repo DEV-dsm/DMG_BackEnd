@@ -76,8 +76,8 @@ export class UserController {
         description: "존재하지 않는 이메일"
     })
     @Post('email')
-    async sendEmail(@Body() emailDto: SendEmailDto) {
-        const data = await this.mailService.sendEmail(emailDto);
+    async sendEmail(@Body('email') email: string) {
+        const data = await this.mailService.sendEmail(email);
 
         return Object.assign({
             data,
