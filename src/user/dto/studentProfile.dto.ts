@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export class StudentProfileDto {
     @ApiProperty({
@@ -36,6 +36,13 @@ export class StudentProfileDto {
     })
     @IsString()
     github: string;
+
+    @ApiProperty({
+        example: 1234,
+        description: "학번"
+    })
+    @IsNumber()
+    number: number;
 
     @ApiProperty({
         example: "",
