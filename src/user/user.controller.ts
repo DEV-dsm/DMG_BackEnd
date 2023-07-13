@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, Patch, Post, UseFilters } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Patch, Post, UseFilters } from '@nestjs/common';
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { MailService } from 'src/mail/mail.service';
@@ -213,6 +213,30 @@ export class UserController {
             data,
             statusCode: 200,
             statusMsg: "프로필 수정에 성공했습니다."
+        })
+    }
+
+    @ApiOperation({
+        summary: "리프레시 토큰 검증",
+        description: "액세스토큰이 만료된 경우 리프레시 토큰으로 요청 보내 재발급"
+    })
+    @ApiHeader({ name: 'refreshtoken', required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: "리프레시 토큰으로 액세스 토큰 재발급"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "리프레시 토큰 만료됨"
+    })
+    @Get('token')
+    async validateRefresh(@Headers('authorization') refreshToken: string): Promise<object>{ 
+        const data = await this.userService.validateRefresh(refreshToken);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "토큰 재발급이 완료되었습니ㅏㄷ."
         })
     }
 }
