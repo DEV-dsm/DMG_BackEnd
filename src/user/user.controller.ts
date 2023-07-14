@@ -2,6 +2,7 @@ import { Body, Controller, Get, Headers, Patch, Post, UseFilters } from '@nestjs
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { MailService } from 'src/mail/mail.service';
+import { ProfileService } from 'src/profile/profile.service';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { passwordDto } from './dto/password.dto';
@@ -15,7 +16,8 @@ import { UserService } from './user.service';
 export class UserController {
     constructor(
         private userService: UserService,
-        private mailService: MailService
+        private mailService: MailService,
+        private profileService: ProfileService,
     ) {
         this.userService = userService;
     }    
@@ -165,13 +167,13 @@ export class UserController {
     @ApiBody({
         type: QuestionDto,
     })
-    @ApiOkResponse({
-        status: 200,
-        description: ""
+    @ApiCreatedResponse({
+        status: 201,
+        description: "문의 완료"
     })
     @ApiNotFoundResponse({
         status: 404,
-        description: ""
+        description: "찾을 수 없는 사용자"
     })
     @Post('question')
     async question(@Headers('authorization') accesstoken: string, @Body() questionDto: QuestionDto): Promise<object>{
@@ -207,7 +209,7 @@ export class UserController {
         @Headers('authorization') accesstoken: string,
         @Body() StudentProfileDto: StudentProfileDto
     ): Promise<object> {
-        const data = await this.userService.patchStudentProfile(accesstoken, StudentProfileDto);
+        const data = await this.profileService.patchStudentProfile(accesstoken, StudentProfileDto);
 
         return Object.assign({
             data,

@@ -275,6 +275,8 @@ export class UserService {
 
         const thisUser = await this.userEntity.findOneBy({ userID });
 
+        if (!thisUser) throw new NotFoundException();
+
         const thisQuestion = await this.questionEntity.save({
             userID,
             user: thisUser,
@@ -283,49 +285,5 @@ export class UserService {
         })
 
         return thisQuestion;
-    }
-
-    /**
-     * 
-     * @param accesstoken 
-     * @param studentProfileDto 
-     * @returns 
-     * 
-     * 학생 프로필 수정
-     */
-    async patchStudentProfile(accesstoken: string, studentProfileDto: StudentProfileDto): Promise<object> {
-        const { userID } = await this.validateAccess(accesstoken);
-        
-        const thisUser = await this.userEntity.findOneBy({ userID });
-        
-        if(!thisUser.isStudent) throw new ConflictException('이 API는 학생 전용입니다.')
-
-        const { identify, name, email, major, github, profile, background, number } = studentProfileDto;
-
-        if (await this.userEntity.findOneBy({ identify })) throw new ConflictException('아이디 중복');
-        if (await this.userEntity.findOneBy({ email })) throw new ConflictException('이메일 중복');
-
-        const updatedUser = await this.userEntity.update({
-            userID
-        }, {
-            identify,
-            name,
-            email,
-            profile,
-            background
-        })
-
-        const updatedStudent = await this.studentEntity.update({
-            userID
-        }, {
-            major,
-            github,
-            number
-        })
-
-        return {
-            updatedUser,
-            updatedStudent
-        }
     }
 }
