@@ -275,6 +275,8 @@ export class UserService {
 
         const thisUser = await this.userEntity.findOneBy({ userID });
 
+        if (!thisUser) throw new NotFoundException();
+
         const thisQuestion = await this.questionEntity.save({
             userID,
             user: thisUser,

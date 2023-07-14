@@ -165,13 +165,13 @@ export class UserController {
     @ApiBody({
         type: QuestionDto,
     })
-    @ApiOkResponse({
-        status: 200,
-        description: ""
+    @ApiCreatedResponse({
+        status: 201,
+        description: "문의 완료"
     })
     @ApiNotFoundResponse({
         status: 404,
-        description: ""
+        description: "찾을 수 없는 사용자"
     })
     @Post('question')
     async question(@Headers('authorization') accesstoken: string, @Body() questionDto: QuestionDto): Promise<object>{
