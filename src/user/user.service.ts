@@ -169,7 +169,7 @@ export class UserService {
      * @param tokenDto 
      * @returns { userID: number, identify: string, iat: number, exp: number }
      * 
-     * 토큰 검증
+     * 액세스 토큰 검증
      */
     async validateAccess(accesstoken: string): Promise<userPayloadDto> {
         // Bearer Token에서 순수 jwt값만 분리
@@ -186,7 +186,7 @@ export class UserService {
         return access;
     }
 
-    async validateRefresh(refreshtoken: string): Promise<userPayloadDto>{
+    async validateRefresh(refreshtoken: string): Promise<Object>{
         // Bearer Token에서 순수 jwt값만 분리
         const refreshToken = refreshtoken.split(' ')[1];
 
@@ -198,7 +198,12 @@ export class UserService {
         // 검증되지 않은 리프레시 토큰
         if (!refresh) throw new UnauthorizedException("재로그인 필요");
 
-        return refresh;
+        const accessToken = await this.generateAccess(refresh);
+
+        return {
+            accessToken : accessToken,
+            refreshToken : refreshtoken
+        };
     }
 
 	/**
@@ -295,7 +300,7 @@ export class UserService {
         
         if(!thisUser.isStudent) throw new ConflictException('이 API는 학생 전용입니다.')
 
-        const { identify, name, email, major, github, profile, background } = studentProfileDto;
+        const { identify, name, email, major, github, profile, background, number } = studentProfileDto;
 
         if (await this.userEntity.findOneBy({ identify })) throw new ConflictException('아이디 중복');
         if (await this.userEntity.findOneBy({ email })) throw new ConflictException('이메일 중복');
@@ -314,7 +319,8 @@ export class UserService {
             userID
         }, {
             major,
-            github
+            github,
+            number
         })
 
         return {
