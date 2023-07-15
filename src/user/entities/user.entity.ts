@@ -11,7 +11,9 @@ export class User {
     @Column()
     identify: string;
 
-    @Column()
+    @Column({
+        nullable: false
+    })
     name: string;
 
     @Column()
