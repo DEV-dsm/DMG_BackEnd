@@ -38,4 +38,25 @@ export class ProfileController {
             statusMsg: "학생 프로필 조회에 성공했습니다."
         })
     }
+
+    @ApiOperation({ summary: "유저 리스트 조회 API", description: "학생 유저 리스트 조회" })
+    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: ""
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @Get('student')
+    async getStudentProfileList(@Headers('authorization') accesstoken: string): Promise<object> {
+        const data = await this.profileService.getStudentProfileList(accesstoken);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "리스트 조회에 성공했습니다."
+        })
+    }
 }

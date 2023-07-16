@@ -12,7 +12,9 @@ export class Student {
     @Column({ nullable: true, default: '없음' })
     github: string;
 
-    @Column()
+    @Column({
+        unique: true
+    })
     number: number;
 
     @OneToOne(
