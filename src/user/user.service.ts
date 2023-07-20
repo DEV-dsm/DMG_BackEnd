@@ -15,7 +15,6 @@ import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { QuestionDto } from './dto/question.dto';
 import { Question } from './entities/question.entity';
-import { StudentProfileDto } from './dto/studentProfile.dto';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -50,6 +49,8 @@ export class UserService {
         if (havingThisUserByEmail) throw new ConflictException('이메일 중복');
 
         const hashedPW = await bcrypt.hash(password, 10);
+
+        if (isStudent) if (await this.studentEntity.findOneBy({ number: userDto.number })) throw new ConflictException();
 
         await this.userEntity.save({
             identify,
