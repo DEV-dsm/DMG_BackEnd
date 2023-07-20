@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 const port = process.env.PORT || 8000
 
@@ -18,6 +19,7 @@ async function bootstrap() {
   SwaggerModule.setup('', app, doc); // document 주소
 
   app.enableCors();
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   await app.listen(port);
 }
