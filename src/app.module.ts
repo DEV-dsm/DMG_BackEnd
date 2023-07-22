@@ -19,7 +19,7 @@ import { ProfileModule } from './profile/profile.module';
       password: process.env.DB_PASSWORD, // DB 접속 계정의 비밀번호
       database: process.env.DB_NAME, // DB 테이블 이름
       entities: [ __dirname + '/**/entity/*.js'],
-      synchronize: true, // false로 설정 안 하면 실행할 때마다 DB 날라감
+      synchronize: false, // false로 설정 안 하면 실행할 때마다 DB 날라감
       logging: false, // 로그찍기
       migrations: [__dirname + '/**/migrations/*.js'],
       migrationsTableName: 'migrations',

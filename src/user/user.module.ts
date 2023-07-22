@@ -7,7 +7,6 @@ import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { MailService } from 'src/mail/mail.service';
-import { ConfigService } from '@nestjs/config';
 import { Question } from './entities/question.entity';
 import { ProfileService } from 'src/profile/profile.service';
 

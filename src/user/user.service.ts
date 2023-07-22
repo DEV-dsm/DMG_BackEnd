@@ -15,7 +15,6 @@ import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { QuestionDto } from './dto/question.dto';
 import { Question } from './entities/question.entity';
-import { StudentProfileDto } from './dto/studentProfile.dto';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()

@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UseFilters } from '@nestjs/common';
 import Mail from 'nodemailer/lib/mailer';
 import * as nodemailer from 'nodemailer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { where } from 'sequelize';
+import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 
 // 메일 옵션 타입
 interface EmailOptions {
@@ -14,6 +14,7 @@ interface EmailOptions {
     html: string;
 }
 
+@UseFilters(new HttpExceptionFilter())
 @Injectable()
 export class MailService {
     private transporter: Mail
