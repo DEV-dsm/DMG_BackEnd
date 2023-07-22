@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException, UseFilters } from '@n
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { StudentProfileDto } from 'src/user/dto/studentProfile.dto';
+import { TeacherProfileDto } from 'src/user/dto/update-teacherProfile.dto';
 import { Student } from 'src/user/entities/student.entity';
 import { Teacher } from 'src/user/entities/teacher.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -100,6 +101,49 @@ export class ProfileService {
         return {
             updatedUser,
             updatedStudent
+        }
+    }
+
+    /**
+     * 
+     * @param accesstoken 
+     * @param teacherProfileDto 
+     * @returns 
+     * 
+     * 교사 프로필 수정
+     */
+    async patchTeacherProfile(accesstoken: string, teacherProfileDto: TeacherProfileDto) {
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        const user = await this.userEntity.findOneBy({ userID });
+
+        if (user.isStudent) throw new ConflictException('이 API는 교사 전용입니다.');
+
+        const { identify, email, profile, background, location, subject, duty } = teacherProfileDto;
+
+        if (await this.userEntity.findOneBy({ identify })) throw new ConflictException('아이디 중복');
+        if (await this.userEntity.findOneBy({ email })) throw new ConflictException('이메일 중복');
+
+        const updateUser = await this.userEntity.update({
+            userID
+        }, {
+            identify,
+            email,
+            profile,
+            background
+        });
+
+        const updateTeacher = await this.teacherEntity.update({
+            userID
+        }, {
+            location,
+            subject,
+            duty
+        });
+
+        return {
+            updateUser,
+            updateTeacher
         }
     }
 }
