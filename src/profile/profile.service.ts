@@ -184,13 +184,6 @@ export class ProfileService {
         await this.userService.validateAccess(accesstoken);
 
         // userID, name, profile, isStudent, subject
-
-        // await this.userEntity.find({
-        //     select: ['userID', 'name', 'profile', 'isStudent'],
-        //     where: { isStudent: false },
-        //     order: { name: "ASC" }
-        // })
-
         const result = await this.userEntity
             .createQueryBuilder("user")
             .innerJoin("user.teacher", "teacher")
