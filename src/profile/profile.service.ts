@@ -25,7 +25,7 @@ export class ProfileService {
      * @param userID 
      * @returns 
      * 
-     * 학생 프로필 조회
+     * 특정 학생 프로필 조회
      */
     async getStudentProfile(accesstoken: string, userID: number): Promise<object> {
         await this.userService.validateAccess(accesstoken);
@@ -38,12 +38,19 @@ export class ProfileService {
         return Object.assign(thisUser, thisStudent);
     }
 
+    /**
+     * 
+     * @param accesstoken 
+     * @returns 
+     * 
+     * 학생 리스트 조회
+     */
     async getStudentProfileList(accesstoken: string): Promise<object>{
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         const userList = await this.userEntity.find({
             where: { isStudent: true },
-            select: ['userID', 'name', 'profile', 'background', ]
+            select: ['userID', 'name', 'profile', 'isStudent', ]
         })
 
         let studentList = []
@@ -112,7 +119,7 @@ export class ProfileService {
      * 
      * 교사 프로필 수정
      */
-    async patchTeacherProfile(accesstoken: string, teacherProfileDto: TeacherProfileDto) {
+    async patchTeacherProfile(accesstoken: string, teacherProfileDto: TeacherProfileDto): Promise<object> {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         const user = await this.userEntity.findOneBy({ userID });
@@ -155,7 +162,7 @@ export class ProfileService {
      * 
      * 특정 교사 프로필 조회
      */
-    async getTeacherProfile(accesstoken: string, userID: number) {
+    async getTeacherProfile(accesstoken: string, userID: number): Promise<object> {
         await this.userService.validateAccess(accesstoken);
 
         const thisUser = await this.userEntity.findOneBy({ userID });
@@ -164,5 +171,33 @@ export class ProfileService {
         if (!thisUser || !thisTeacher) throw new NotFoundException('존재하지 않는 유저');
 
         return Object.assign(thisUser, thisTeacher);
+    }
+
+    /**
+     * 
+     * @param accesstoken 
+     * @returns 
+     * 
+     * 교사 리스트 조회
+     */
+    async getTeacherProfileList(accesstoken: string) {
+        await this.userService.validateAccess(accesstoken);
+
+        // userID, name, profile, isStudent, subject
+
+        // await this.userEntity.find({
+        //     select: ['userID', 'name', 'profile', 'isStudent'],
+        //     where: { isStudent: false },
+        //     order: { name: "ASC" }
+        // })
+
+        const result = await this.userEntity
+            .createQueryBuilder("user")
+            .innerJoin("user.teacher", "teacher")
+            .select(['user.userID', 'name', 'profile', 'isStudent', 'subject'])
+            .where("user.isStudent = :isStudent", { isStudent: false })
+            .getRawMany()
+
+        return result;
     }
 }
