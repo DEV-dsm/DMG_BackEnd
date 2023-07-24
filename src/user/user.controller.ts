@@ -4,7 +4,7 @@ import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { MailService } from 'src/mail/mail.service';
 import { ProfileService } from 'src/profile/profile.service';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
-import { LoginUserDto } from './dto/login-user.dto';
+import { LoginUserDto } from './dto/loginUser.dto';
 import { passwordDto } from './dto/password.dto';
 import { QuestionDto } from './dto/question.dto';
 import { UserService } from './user.service';
