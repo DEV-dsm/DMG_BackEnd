@@ -7,7 +7,6 @@ import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { passwordDto } from './dto/password.dto';
 import { QuestionDto } from './dto/question.dto';
-import { StudentProfileDto } from './dto/studentProfile.dto';
 import { UserService } from './user.service';
 
 @ApiTags('/user')
@@ -183,38 +182,6 @@ export class UserController {
             data,
             statusCode: 201,
             statusMsg: "문의가 완료되었습니다."
-        })
-    }
-
-    @ApiOperation({
-        summary: "학생 프로필 수정하기 API",
-        description: ""
-    })
-    @ApiHeader({ name: 'accesstoken', required: true })
-    @ApiBody({ type: StudentProfileDto })
-    @ApiOkResponse({
-        status: 200,
-        description: "프로필 수정 완료"
-    })
-    @ApiConflictResponse({
-        status: 409,
-        description: "학생 전용 API에 선생님이 요청을 보냄"
-    })
-    @ApiConflictResponse({
-        status: 409,
-        description: "아이디 / 이메일 중복"
-    })
-    @Patch('student')
-    async updateStudentProfile(
-        @Headers('authorization') accesstoken: string,
-        @Body() StudentProfileDto: StudentProfileDto
-    ): Promise<object> {
-        const data = await this.profileService.patchStudentProfile(accesstoken, StudentProfileDto);
-
-        return Object.assign({
-            data,
-            statusCode: 200,
-            statusMsg: "프로필 수정에 성공했습니다."
         })
     }
 
