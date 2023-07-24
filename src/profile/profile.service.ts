@@ -2,7 +2,7 @@ import { ConflictException, Injectable, NotFoundException, UseFilters } from '@n
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { StudentProfileDto } from 'src/user/dto/studentProfile.dto';
-import { TeacherProfileDto } from 'src/user/dto/update-teacherProfile.dto';
+import { TeacherProfileDto } from 'src/user/dto/teacherProfile.dto';
 import { Student } from 'src/user/entities/student.entity';
 import { Teacher } from 'src/user/entities/teacher.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -28,12 +28,12 @@ export class ProfileService {
      * 학생 프로필 조회
      */
     async getStudentProfile(accesstoken: string, userID: number): Promise<object> {
-        const thisUserID = (await this.userService.validateAccess(accesstoken)).userID;
+        await this.userService.validateAccess(accesstoken);
 
         const thisUser = await this.userEntity.findOneBy({ userID });
         const thisStudent = await this.studentEntity.findOneBy({ userID });
 
-        if (!thisUser || !thisStudent) throw new NotFoundException();
+        if (!thisUser || !thisStudent) throw new NotFoundException('존재하지 않는 유저');
 
         return Object.assign(thisUser, thisStudent);
     }
@@ -145,5 +145,24 @@ export class ProfileService {
             updateUser,
             updateTeacher
         }
+    }
+    
+    /**
+     * 
+     * @param accesstoken 
+     * @param userID 
+     * @returns 
+     * 
+     * 특정 교사 프로필 조회
+     */
+    async getTeacherProfile(accesstoken: string, userID: number) {
+        await this.userService.validateAccess(accesstoken);
+
+        const thisUser = await this.userEntity.findOneBy({ userID });
+        const thisTeacher = await this.teacherEntity.findOneBy({ userID });
+
+        if (!thisUser || !thisTeacher) throw new NotFoundException('존재하지 않는 유저');
+
+        return Object.assign(thisUser, thisTeacher);
     }
 }

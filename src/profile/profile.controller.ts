@@ -2,7 +2,7 @@ import { Body, Controller, Get, Headers, Param, Patch, UseFilters } from '@nestj
 import { ApiBody, ApiConflictResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { StudentProfileDto } from 'src/user/dto/studentProfile.dto';
-import { TeacherProfileDto } from 'src/user/dto/update-teacherProfile.dto';
+import { TeacherProfileDto } from 'src/user/dto/teacherProfile.dto';
 import { ProfileService } from './profile.service';
 
 @ApiTags('프로필 API')
@@ -17,7 +17,7 @@ export class ProfileController {
 
     @ApiOperation({
         summary: "학생 프로필 수정하기 API",
-        description: ""
+        description: "학생 프로필 수정하기"
     })
     @ApiHeader({ name: 'accesstoken', required: true })
     @ApiBody({ type: StudentProfileDto })
@@ -125,5 +125,31 @@ export class ProfileController {
             statusCode: 200,
             statusMsg: "교사 개인 프로필 수정이 완료되었습니다."
         })
+    }
+
+    @ApiOperation({ summary: "교사 프로필 조회 API", description: "교사 프로필 조회" })
+    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiParam({ name: "userID", type: "number" })
+    @ApiOkResponse({
+        status: 200,
+        description: "교사 프로필 조회 성공"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "찾을 수 없는 사용자 아이디"
+    })
+    @Get('teacher/:userID')
+    async getTeacherProfile(@Headers('authorization') accesstoken: string, @Param('userID') userID: number): Promise<object> {
+        const data = await this.profileService.getTeacherProfile(accesstoken, userID);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "교사 프로필 조회에 성공했습니다."
+        });
     }
 }
