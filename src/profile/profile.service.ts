@@ -48,21 +48,28 @@ export class ProfileService {
     async getStudentProfileList(accesstoken: string): Promise<object>{
         const { userID } = await this.userService.validateAccess(accesstoken);
 
-        const userList = await this.userEntity.find({
-            where: { isStudent: true },
-            select: ['userID', 'name', 'profile' ]
-        })
+        // const userList = await this.userEntity.find({
+        //     where: { isStudent: true },
+        //     select: ['userID', 'name', 'profile' ]
+        // })
 
-        let studentList = []
+        // let studentList = []
 
-        for (let i = 0; i < userList.length; i++){
-            const student = await this.studentEntity.findOne({
-                where: { userID: userList[i].userID },
-                select: ['number']
-            })
+        // for (let i = 0; i < userList.length; i++){
+        //     const student = await this.studentEntity.findOne({
+        //         where: { userID: userList[i].userID },
+        //         select: ['number']
+        //     })
 
-            studentList.push(Object.assign(userList[i], student));
-        }
+        //     studentList.push(Object.assign(userList[i], student));
+        // }
+
+        const studentList = await this.userEntity
+            .createQueryBuilder('qb')
+            .innerJoin("qb.student", "student")
+            .select(['qb.userID', 'name', 'profile', 'number'])
+            .where("qb.isStudent = :isStudent", { isStudent: true })
+            .getRawMany();
 
         return studentList;
     }
