@@ -73,11 +73,11 @@ export class ProfileController {
         })
     }
 
-    @ApiOperation({ summary: "유저 리스트 조회 API", description: "학생 유저 리스트 조회" })
+    @ApiOperation({ summary: "학생 리스트 조회 API", description: "학생 리스트 조회" })
     @ApiHeader({ name: "accesstoken", required: true })
     @ApiOkResponse({
         status: 200,
-        description: ""
+        description: "학생 리스트 조회 성공"
     })
     @ApiUnauthorizedResponse({
         status: 401,
@@ -90,7 +90,7 @@ export class ProfileController {
         return Object.assign({
             data,
             statusCode: 200,
-            statusMsg: "리스트 조회에 성공했습니다."
+            statusMsg: "학생 리스트 조회에 성공했습니다."
         })
     }
 
@@ -151,5 +151,26 @@ export class ProfileController {
             statusCode: 200,
             statusMsg: "교사 프로필 조회에 성공했습니다."
         });
+    }
+
+    @ApiOperation({ summary: "교사 리스트 조회 API", description: "교사 리스트 조회" })
+    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: "교사 리스트 조회 성공"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @Get('teacher')
+    async getTeacherProfileList(@Headers('authorization') accesstoken: string): Promise<object> {
+        const data = await this.profileService.getTeacherProfileList(accesstoken);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "교사 리스트 조회에 성공했습니다."
+        })
     }
 }
