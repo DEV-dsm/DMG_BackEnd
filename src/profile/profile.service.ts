@@ -50,7 +50,7 @@ export class ProfileService {
 
         const userList = await this.userEntity.find({
             where: { isStudent: true },
-            select: ['userID', 'name', 'profile', 'isStudent', ]
+            select: ['userID', 'name', 'profile' ]
         })
 
         let studentList = []
@@ -187,7 +187,7 @@ export class ProfileService {
         const result = await this.userEntity
             .createQueryBuilder("user")
             .innerJoin("user.teacher", "teacher")
-            .select(['user.userID', 'name', 'profile', 'isStudent', 'subject'])
+            .select(['user.userID', 'name', 'profile', 'subject'])
             .where("user.isStudent = :isStudent", { isStudent: false })
             .getRawMany()
 
