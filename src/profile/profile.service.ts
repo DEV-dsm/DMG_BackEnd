@@ -1,6 +1,7 @@
-import { ConflictException, Injectable, NotFoundException, UseFilters } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UseFilters } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
+import { searchProfileDto } from 'src/user/dto/searchProfile.dto';
 import { StudentProfileDto } from 'src/user/dto/studentProfile.dto';
 import { TeacherProfileDto } from 'src/user/dto/teacherProfile.dto';
 import { Student } from 'src/user/entities/student.entity';
@@ -200,4 +201,60 @@ export class ProfileService {
 
         return result;
     }
+
+    /**
+     * 
+     * @param accesstoken 
+     * @param isStudent 
+     * @param searchProfileDto
+     * @returns 
+     * 
+     * 유저 검색
+     */
+     async searchProfileList(accesstoken: string, isStudent: boolean, searchProfileDto: searchProfileDto): Promise<object> {
+        const { standard, keyword } = searchProfileDto;
+        if(standard != 'number' && standard != 'name') throw new BadRequestException('잘못된 요청');
+        
+        await this.userService.validateAccess(accesstoken);
+
+        // 학생 검색
+        if (isStudent) {
+            if (standard == 'number') {
+                const studentList = await this.userEntity
+                    .createQueryBuilder("user")
+                    .innerJoin("user.student", "student")
+                    .select(["user.userID", "name", "profile", "number"])
+                    .where("user.isStudent = :isStudent", { isStudent: true })
+                    .andWhere("student.number LIKE :number", { number: `%${keyword}%`})
+                    .getRawMany();
+
+                return studentList;
+                
+            }
+            const studentList = await this.userEntity
+                .createQueryBuilder("user")
+                .innerJoin("user.student", "student")
+                .select(["user.userID", "name", "profile", "number"])
+                .where("user.isStudent = :isStudent", { isStudent: true })
+                .andWhere("user.name LIKE :name", { name: `%${keyword}%`})
+                .getRawMany();
+
+            return studentList;
+        } else {
+            if(standard == 'number') throw new BadRequestException('잘못된 요청');
+            // 교사 검색
+            const teacherList = await this.userEntity
+                .createQueryBuilder("user")
+                .innerJoin("user.teacher", "teacher")
+                .select(["user.userID", "name", "profile", "subject"])
+                .where("user.isStudent = :isStudent", { isStudent: false })
+                .andWhere("user.name LIKE :name", { name: `%${keyword}%`})
+                .getRawMany();
+
+            return teacherList;
+        }
+    }
 }
+// .orderBy("user.number", "ASC")
+// 찾을 수 없는 유저 에러 안 뜸
+// 교사 검색이 안 됨
