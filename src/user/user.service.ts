@@ -27,9 +27,7 @@ export class UserService {
         @InjectRepository(User) private userEntity: Repository<User>,
         @InjectRepository(Question) private questionEntity: Repository<Question>,
         private jwt: JwtService,
-    ) {
-        this.redis = redis;
-    }
+    ) {}
 
     /**
      * 
