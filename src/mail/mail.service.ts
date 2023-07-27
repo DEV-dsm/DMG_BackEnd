@@ -69,7 +69,7 @@ export class MailService {
         await this.transporter.sendMail(mailOptions);
 
         setTimeout(() => {
-            this.redis.set(`email`, null)
+            this.redis.set(email, null)
         }, 1000 * 300)
 
         return number;
