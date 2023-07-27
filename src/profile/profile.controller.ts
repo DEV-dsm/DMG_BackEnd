@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Headers, Param, Patch, UseFilters } from '@nestjs/common';
-import { ApiBody, ApiConflictResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Headers, Param, Patch, Post, UseFilters } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiBody, ApiConflictResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
+import { searchProfileDto } from 'src/user/dto/searchProfile.dto';
 import { StudentProfileDto } from 'src/user/dto/studentProfile.dto';
 import { TeacherProfileDto } from 'src/user/dto/teacherProfile.dto';
 import { ProfileService } from './profile.service';
@@ -172,5 +173,38 @@ export class ProfileController {
             statusCode: 200,
             statusMsg: "교사 리스트 조회에 성공했습니다."
         })
+    }
+
+    @ApiOperation({ summary: "유저 검색 API", description: "유저 검색" })
+    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: "유저 검색 성공"
+    })
+    @ApiBadRequestResponse({
+        status: 400,
+        description: "잘못된 요청"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "해당 유저를 찾을 수 없음"
+    })
+    @Post('search/:isStudent')
+    async searchProfileList(
+        @Headers('authorization') accesstoken: string,
+        @Param('isStudent') isStudent: boolean,
+        @Body() searchProfile: searchProfileDto
+        ): Promise<object> {
+            const data = await this.profileService.searchProfileList(accesstoken, isStudent, searchProfile);
+
+            return Object.assign({
+                data,
+                statusCode: 200,
+                statusMsg: "유저 검색에 성공했습니다."
+            })
     }
 }
