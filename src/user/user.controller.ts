@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Headers, Patch, Post, UseFilters } from '@nestjs/common';
-import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Headers, Param, Patch, Post, UseFilters } from '@nestjs/common';
+import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { MailService } from 'src/mail/mail.service';
 import { ProfileService } from 'src/profile/profile.service';
@@ -16,7 +16,6 @@ export class UserController {
     constructor(
         private userService: UserService,
         private mailService: MailService,
-        private profileService: ProfileService,
     ) {
         this.userService = userService;
     }    
@@ -67,7 +66,7 @@ export class UserController {
         })
     }
 
-    @ApiOperation({ summary: "이메일 발송", description: "이메일로 인증코드 발송 API"})
+    @ApiOperation({ summary: "이메일 인증코드 발송 API", description: "이메일로 인증코드 발송" })
     @ApiBody({ type: 'string' })
     @ApiOkResponse({
         status: 200,
@@ -85,6 +84,32 @@ export class UserController {
             data,
             statusCode: 200,
             statusMsg: "인증번호 이메일 발송이 완료되었습니다."
+        })
+    }
+
+    @ApiOperation({ summary: "인증코드 검증 API", description: "인증코드 검증" })
+    @ApiParam({ name: "email", type: "string" })
+    @ApiBody({ type: "string" })
+    @ApiOkResponse({
+        status: 200,
+        description: "올바른 인증번호"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 이메일"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "일치하지 않는 인증번호"
+    })
+    @Post('verify/:email')
+    async verifyEmail(@Param('email') email: string, @Body('code') code: string) {
+        const data = await this.mailService.verifyEmail(email, code);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "올바른 인증번호입니다."
         })
     }
 

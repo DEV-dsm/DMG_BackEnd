@@ -177,6 +177,7 @@ export class ProfileController {
 
     @ApiOperation({ summary: "유저 검색 API", description: "유저 검색" })
     @ApiHeader({ name: "accesstoken", required: true })
+    @ApiParam({ name: "isStudent", type: "boolean" })
     @ApiOkResponse({
         status: 200,
         description: "유저 검색 성공"
