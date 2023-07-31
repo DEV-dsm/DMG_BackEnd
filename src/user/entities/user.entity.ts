@@ -1,4 +1,5 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Chatting } from "src/chat/entity/chatting.entity";
+import { Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Question } from "./question.entity";
 import { Student } from "./student.entity";
 import { Teacher } from "./teacher.entity";
@@ -46,4 +47,10 @@ export class User {
         question => question.user
     )
     question: Question[];
+
+    @ManyToMany(
+        () => Chatting,
+        chatting => chatting.thisUser
+    )
+    chattingUser: Chatting;
 }

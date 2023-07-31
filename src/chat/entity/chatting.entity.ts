@@ -10,13 +10,13 @@ export class Chatting {
     @Column()
     userID: number;
 
-    @ManyToMany(() => User, user => user.userID)
+    @ManyToMany(() => User, user => user.chattingUser)
     thisUser: User;
 
     @Column()
     groupID: number;
 
-    @ManyToOne(() => Group, group => group.groupID)
+    @ManyToOne(() => Group, group => group.chattingGroup)
     thisGroup: Group;
 
     @Column()
