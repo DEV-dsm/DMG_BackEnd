@@ -12,9 +12,10 @@ import { userPayloadDto } from './dto/userPayload.dto';
 import * as bcrypt from 'bcrypt';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
-import { LoginUserDto } from './dto/login-user.dto';
 import { QuestionDto } from './dto/question.dto';
 import { Question } from './entities/question.entity';
+import { LoginUserDto } from './dto/loginUser.dto';
+import { IncomingWebhook } from '@slack/webhook';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -26,9 +27,7 @@ export class UserService {
         @InjectRepository(User) private userEntity: Repository<User>,
         @InjectRepository(Question) private questionEntity: Repository<Question>,
         private jwt: JwtService,
-    ) {
-        this.redis = redis;
-    }
+    ) {}
 
     /**
      * 
@@ -263,7 +262,7 @@ export class UserService {
         return updatedUser;
     }
 
-    /**
+/**
      * 
      * @param accesstoken 
      * @param question 
@@ -271,20 +270,63 @@ export class UserService {
      * 
      * 문의하기
      */
-    async question(accesstoken: string, question: QuestionDto): Promise<object> {
-        const { userID } = await this.validateAccess(accesstoken);
+async question(accesstoken: string, question: QuestionDto): Promise<object> {
+    const webhook = new IncomingWebhook(process.env.CHANNEL_URL); // 웹훅 생성
 
-        const thisUser = await this.userEntity.findOneBy({ userID });
+    const { userID } = await this.validateAccess(accesstoken); // 액세스 토큰 검증
 
-        if (!thisUser) throw new NotFoundException();
+    const thisUser = await this.userEntity.findOneBy({ userID }); // 유저 찾기
 
-        const thisQuestion = await this.questionEntity.save({
-            userID,
-            user: thisUser,
-            title: question.title,
-            content: question.content
-        })
+    if (!thisUser) throw new NotFoundException(); // 없으면 NotFoundException
 
-        return thisQuestion;
+    const thisQuestion = await this.questionEntity.save({
+        userID,
+        user: thisUser,
+        title: question.title,
+        content: question.content
+    })
+
+    const payload = {
+        "attachments": [
+            {
+                "blocks": [
+                    {
+                        "type": "header",
+                        "text": {
+                            "type": "plain_text",
+                            "text": question.title
+                        }
+                    },
+                    {
+                        "type": "divider"
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": question.content
+                        },
+                    },
+                    {
+                        "type": "divider"
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": `*date*:${Date.now().toString()}\n*userID*: ${userID}\n*userName*: ${thisUser.name}\n*userEmail*: ${thisUser.email}`
+                        }
+                    },
+                    {
+                        "type": "divider"
+                    }
+                ]
+            }
+        ]
     }
+
+    await webhook.send(payload);
+
+    return thisQuestion;
+}
 }

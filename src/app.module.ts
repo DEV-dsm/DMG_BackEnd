@@ -1,16 +1,24 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from '@liaoliaots/nestjs-redis'
 import { UserModule } from './user/user.module';
 import { ProfileModule } from './profile/profile.module';
 import { ChatModule } from './chat/chat.module';
+import { SlackModule } from 'nestjs-slack-webhook';
+import slackConfig from './config/slack.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
+    ConfigModule.forRoot({ // Slack
       cache: true, // 캐싱
       isGlobal: true, // 전역
+      load: [slackConfig]
+    }),
+    SlackModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config) => config.get('slack'),
     }),
     TypeOrmModule.forRoot({ // TypeORM
       type: 'mysql',

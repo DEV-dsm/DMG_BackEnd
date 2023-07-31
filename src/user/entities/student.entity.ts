@@ -15,7 +15,7 @@ export class Student {
     @Column({
         unique: true
     })
-    number: number;
+    number: string;
 
     @OneToOne(
         () => User,
