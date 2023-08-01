@@ -49,6 +49,8 @@ export class UserService {
 
         const hashedPW = await bcrypt.hash(password, 10);
 
+        if (isStudent) if (await this.studentEntity.findOneBy({ number: userDto.number })) throw new ConflictException();
+
         await this.userEntity.save({
             identify,
             name,

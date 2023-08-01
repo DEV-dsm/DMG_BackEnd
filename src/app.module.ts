@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from '@liaoliaots/nestjs-redis'
 import { UserModule } from './user/user.module';
 import { ProfileModule } from './profile/profile.module';
+import { ChatModule } from './chat/chat.module';
 import { SlackModule } from 'nestjs-slack-webhook';
 import slackConfig from './config/slack.config';
 
@@ -43,6 +44,7 @@ import slackConfig from './config/slack.config';
     }),
     UserModule,
     ProfileModule,
+    ChatModule,
   ],
   controllers: [],
   providers: [],
