@@ -46,7 +46,7 @@ export class ChatController {
 
     @ApiOperation({ summary: "채팅방 정보 확인하기 API", description: "특정 채팅방의 정보를 확인" })
     @ApiHeader({ name: "authorization", required: true })
-    @ApiParam({ name: "roomID", type: "number" })
+    @ApiParam({ name: "groupID", type: "number" })
     @ApiOkResponse({
         status: 200,
         description: ""
