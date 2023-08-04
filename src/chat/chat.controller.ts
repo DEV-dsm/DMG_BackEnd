@@ -1,5 +1,5 @@
-import { Body, Controller, Headers, Post, UseFilters } from '@nestjs/common';
-import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoundResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Headers, Param, Post, Query, UseFilters } from '@nestjs/common';
+import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
 import { CreateMessageDto } from './dto/createMessage.dto';
@@ -41,6 +41,36 @@ export class ChatController {
             data,
             statusCode: 201,
             statusMsg: "OK"
+        })
+    }
+
+    @ApiOperation({ summary: "채팅방 정보 확인하기 API", description: "특정 채팅방의 정보를 확인" })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiParam({ name: "groupID", type: "number" })
+    @ApiOkResponse({
+        status: 200,
+        description: ""
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "JWT 만료"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "미소속된 채팅방에 대한 접근"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 채팅방"
+    })
+    @Get('info?')
+    async getGroupInfo(@Headers('authorization') accesstoken: string, @Query('groupID') groupID: number) {
+        const data = await this.chatService.getGroupInfo(accesstoken, groupID);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: ""
         })
     }
 }

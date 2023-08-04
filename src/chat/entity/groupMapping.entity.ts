@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/user/entities/user.entity";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class GroupMapping {
@@ -10,4 +11,11 @@ export class GroupMapping {
 
     @Column()
     isManager: boolean;
+
+    @OneToOne(
+        () => User,
+        user => user.mappingUser
+    )
+    @JoinColumn({ name: 'userID' })
+    user: User;
 }

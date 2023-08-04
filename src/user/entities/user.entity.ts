@@ -1,4 +1,5 @@
 import { Chatting } from "src/chat/entity/chatting.entity";
+import { GroupMapping } from "src/chat/entity/groupMapping.entity";
 import { Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Question } from "./question.entity";
 import { Student } from "./student.entity";
@@ -53,4 +54,10 @@ export class User {
         chatting => chatting.thisUser
     )
     chattingUser: Chatting;
+
+    @OneToOne(
+        () => GroupMapping,
+        groupMapping => groupMapping.user
+    )
+    mappingUser: GroupMapping;
 }
