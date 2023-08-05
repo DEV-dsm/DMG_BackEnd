@@ -96,7 +96,7 @@ export class ChatService {
             isManager: true
         });
 
-        return this.userEntity.findOne({
+        return await this.userEntity.findOne({
             where: { userID: thisManagerID },
             select: ['name', 'identify', 'profile']
         });
