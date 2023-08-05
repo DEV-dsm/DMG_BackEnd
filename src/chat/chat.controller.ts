@@ -2,6 +2,7 @@ import { Body, Controller, Get, Headers, Patch, Post, Query, UseFilters } from '
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
+import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 
@@ -64,6 +65,28 @@ export class ChatController {
             data,
             statusCode: 201,
             statusMsg: "개인 채팅방이 생성되었습니다."
+        })
+    }
+
+    @ApiOperation({ summary: "단체 채팅방 만들기 API", description: "단체 채팅방 만들기" })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiBody({ type: CreateGroupPeopleDto })
+    @ApiOkResponse({
+        status: 201,
+        description: "단체 채팅방 생성 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @Post('newPeople')
+    async createGroupPeople(@Headers('authorization') accesstoken: string, @Body() createGroupDto: CreateGroupPeopleDto) {
+        const data = await this.chatService.createGroupPeople(accesstoken, createGroupDto);
+
+        return Object.assign({
+            data,
+            statusCode: 201,
+            statusMsg: "단체 채팅방이 생성되었습니다."
         })
     }
 

@@ -4,6 +4,7 @@ import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { ChatGateway } from './chat.gateway';
+import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { Chatting } from './entity/chatting.entity';
@@ -91,6 +92,41 @@ export class ChatService {
             madeIn,
             member
         }
+    }
+
+    async createGroupPeople(accesstoken: string, createGroupDto: CreateGroupPeopleDto) {
+        // JWT 유효성 검사 & userID 추출
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        // 파라미터 분리
+        const { name, profile, people } = createGroupDto;
+
+        // 새 채팅방 생성
+        const group = await this.groupEntity.save({
+            name,
+            profile
+        });
+
+        // 단체 채팅방 만든이 추가 및 관리자 할당
+        const madeIn = await this.groupMappingEntity.save({
+            groupID: group.groupID,
+            userID,
+            isManager: true
+        })
+
+        // 단체 채팅방 멤버 추가
+        for (let i = 0; i < people.length; i++) {
+            // 멤버 찾기
+            const findUser = await this.userEntity.findOneBy({ userID: people[i] })
+
+            await this.groupMappingEntity.save({
+                groupID: group.groupID,
+                userID: findUser.userID,
+                isManager: false
+            });
+        }
+
+        return madeIn;
     }
 
     async getGroupInfo(accesstoken: string, groupID: number) {
