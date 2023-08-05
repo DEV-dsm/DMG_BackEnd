@@ -5,6 +5,7 @@ import { ChatService } from './chat.service';
 import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
+import { InviteMemberDto } from './dto/inviteMember.dto';
 
 @ApiTags('/chat')
 @UseFilters(new HttpExceptionFilter())
@@ -87,6 +88,36 @@ export class ChatController {
             data,
             statusCode: 201,
             statusMsg: "단체 채팅방이 생성되었습니다."
+        })
+    }
+
+    @ApiOperation({ summary: "채팅방에 멤버 초대하기 API", description: "채팅방에 멤버 초대하기" })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiBody({ type: InviteMemberDto })
+    @ApiOkResponse({
+        status: 200,
+        description: "멤버 초대 성공"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: ""
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "이미 채팅방에 존재하는 멤버"
+    })
+    @Post('invite')
+    async inviteMember(@Headers('authorization') accesstoken: string, @Body() inviteMemberDto: InviteMemberDto) {
+        const data = await this.chatService.inviteMember(accesstoken, inviteMemberDto);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "채팅방 초대 성공"
         })
     }
 

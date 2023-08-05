@@ -7,6 +7,7 @@ import { ChatGateway } from './chat.gateway';
 import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
+import { InviteMemberDto } from './dto/inviteMember.dto';
 import { Chatting } from './entity/chatting.entity';
 import { Group } from './entity/group.entity';
 import { GroupMapping } from './entity/groupMapping.entity';
@@ -77,14 +78,14 @@ export class ChatService {
         const madeIn = await this.groupMappingEntity.save({
             groupID: group.groupID,
             userID: userID,
-            isMannager: false
+            isManager: true
         })
 
         // 개인 채팅방 상대방 추가
         const member = await this.groupMappingEntity.save({
             groupID: group.groupID,
             userID: findUser.userID,
-            isManager: false
+            isManager: true
         })
 
         return {
@@ -127,6 +128,42 @@ export class ChatService {
         }
 
         return madeIn;
+    }
+
+    async inviteMember(accesstoken: string, inviteMemberDto: InviteMemberDto) {
+        // JWT 유효성 검사 & userID 추출
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        // 파라미터 분리
+        const { groupID, newUser } = inviteMemberDto;
+
+        // 채팅방 존재 여부 확인
+        const findGroup = await this.groupMappingEntity.findOneBy({ groupID, userID });
+        if (!findGroup) throw new NotFoundException();
+
+        for (let i = 0; i < newUser.length; i++) {
+            // 초대 멤버 존재 여부 확인
+            const findUser = await this.userEntity.findOneBy({ userID: newUser[i] })
+            if (!findUser) throw new NotFoundException();
+
+            // 초대 멤버 채팅방 존재 여부 확인
+            const existUser = await this.groupMappingEntity.findOneBy({
+                groupID: findGroup.groupID,
+                userID: findUser.userID
+            })
+            if (existUser) throw new ConflictException('이미 채팅방에 존재하는 멤버');
+
+            await this.groupMappingEntity.save({
+                groupID: findGroup.groupID,
+                userID: findUser.userID,
+                isManager: false
+            });
+        }
+
+        return await this.groupMappingEntity.find({
+            where: { groupID: findGroup.groupID },
+            select: ['groupID', 'userID', 'isManager']
+        });
     }
 
     async getGroupInfo(accesstoken: string, groupID: number) {
