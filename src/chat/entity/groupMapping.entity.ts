@@ -1,5 +1,6 @@
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
+import { Group } from "./group.entity";
 
 @Entity()
 export class GroupMapping {
@@ -9,7 +10,7 @@ export class GroupMapping {
     @PrimaryColumn()
     groupID: number;
 
-    @Column()
+    @Column({ default: false })
     isManager: boolean;
 
     @OneToOne(
@@ -18,4 +19,11 @@ export class GroupMapping {
     )
     @JoinColumn({ name: 'userID' })
     user: User;
+
+    @ManyToOne(
+        () => Group,
+        group => group.mappingGroup
+    )
+    @JoinColumn({ name: 'groupID' })
+    thisGroup: Group;
 }

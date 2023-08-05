@@ -9,7 +9,7 @@ export class Teacher {
     @Column()
     location: string;
 
-    @Column({ nullable: true, default: '없음' })
+    @Column({ default: '없음' })
     subject: string;
 
     @Column()

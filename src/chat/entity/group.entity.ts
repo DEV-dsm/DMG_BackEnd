@@ -1,12 +1,13 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Chatting } from "./chatting.entity";
+import { GroupMapping } from "./groupMapping.entity";
 
 @Entity()
 export class Group {
     @PrimaryGeneratedColumn()
     groupID: number;
 
-    @Column()
+    @Column({ nullable: true })
     name: string;
 
     @Column()
@@ -17,4 +18,10 @@ export class Group {
         chatting => chatting.thisGroup
     )
     chattingGroup: Chatting;
+
+    @OneToMany(
+        () => GroupMapping,
+        groupMapping => groupMapping.thisGroup
+    )
+    mappingGroup: GroupMapping;
 }

@@ -6,15 +6,13 @@ export class Student {
     @PrimaryColumn()
     userID: number;
 
-    @Column({ nullable: true, default: '미정' })
+    @Column({ default: '미정' })
     major: string;
 
-    @Column({ nullable: true, default: '없음' })
+    @Column({ default: '없음' })
     github: string;
 
-    @Column({
-        unique: true
-    })
+    @Column({ unique: true })
     number: string;
 
     @OneToOne(

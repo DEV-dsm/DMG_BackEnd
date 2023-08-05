@@ -3,30 +3,19 @@ import { User } from "./user.entity";
 
 @Entity()
 export class Question {
-    @PrimaryGeneratedColumn({
-        type: "integer",
-    })
+    @PrimaryGeneratedColumn({ type: "integer" })
     questionID: number;
 
-    @Column({
-        type: "integer",
-        nullable: false
-    })
+    @Column({ type: "integer" })
     userID: number;
+
+    @Column({ type: "text" })
+    title: string;
+
+    @Column({ type: "text" })
+    content: string;
 
     @ManyToOne(() => User, user => user.userID)
     @JoinColumn({ name: 'userID' })
     user: User;
-
-    @Column({
-        type: "text",
-        nullable: false
-    })
-    title: string;
-
-    @Column({
-        type: "text",
-        nullable: false
-    })
-    content: string;
 }

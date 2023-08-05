@@ -10,7 +10,7 @@ export class User {
     @PrimaryGeneratedColumn()
     userID: number;
 
-    @Column()
+    @Column({ unique: true })
     identify: string;
 
     @Column()
@@ -19,13 +19,13 @@ export class User {
     @Column()
     password: string;
 
-    @Column()
+    @Column({ unique: true })
     email: string;
 
-    @Column({ nullable: true })
+    @Column({ default: '기본 프로필 사진 링크' })
     profile: string;
 
-    @Column({ nullable: true })
+    @Column({ default: '기본 배경 사진 링크' })
     background: string;
 
     @Column()
