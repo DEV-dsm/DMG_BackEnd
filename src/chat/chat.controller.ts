@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Headers, Param, Post, Query, UseFilters } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Query, UseFilters } from '@nestjs/common';
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
+import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 
 @ApiTags('/chat')
@@ -34,13 +35,34 @@ export class ChatController {
         description: "해당 그룹에 존재하지 않는 유저가 채팅 발송"
     })
     @Post()
-    async createChat(@Headers('authorization') accesstoken: string, @Body() createMessageDto: CreateMessageDto): Promise<object> {
+    async createMessage(@Headers('authorization') accesstoken: string, @Body() createMessageDto: CreateMessageDto): Promise<object> {
         const data = await this.chatService.createMessage(accesstoken, createMessageDto);
 
         return Object.assign({
             data,
             statusCode: 201,
             statusMsg: "OK"
+        })
+    }
+
+    @ApiOperation({ summary: "개인 채팅방 만들기 API", description: "개인 채팅방 만들기" })
+    @ApiHeader({ name: "authorization", required: true})
+    @ApiCreatedResponse({
+        status: 201,
+        description: "개인 채팅방 생성 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @Post('newPerson')
+    async createGroupPerson(@Headers('authorization') accesstoken: string, @Body() createGroupDto: CreateGroupPersonDto) {
+        const data = await this.chatService.createGroupPerson(accesstoken, createGroupDto);
+
+        return Object.assign({
+            data,
+            statusCode: 201,
+            statusMsg: "개인 채팅방이 생성되었습니다."
         })
     }
 
