@@ -26,6 +26,10 @@ export class ProfileController {
         status: 200,
         description: "학생 프로필 수정 완료"
     })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
     @ApiConflictResponse({
         status: 409,
         description: "학생 전용 API에 선생님이 요청을 보냄"

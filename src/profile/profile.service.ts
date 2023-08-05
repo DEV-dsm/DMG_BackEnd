@@ -255,6 +255,3 @@ export class ProfileService {
         }
     }
 }
-// .orderBy("user.number", "ASC")
-// 찾을 수 없는 유저 에러 안 뜸
-// 교사 검색이 안 됨

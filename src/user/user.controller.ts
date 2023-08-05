@@ -2,7 +2,6 @@ import { Body, Controller, Get, Headers, Param, Patch, Post, UseFilters } from '
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { MailService } from 'src/mail/mail.service';
-import { ProfileService } from 'src/profile/profile.service';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { passwordDto } from './dto/password.dto';
