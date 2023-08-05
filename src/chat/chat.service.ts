@@ -78,4 +78,27 @@ export class ChatService {
         
         return count;
     }
+
+    async newGroupManager(accesstoken: string, groupID: string, newManagerID: string) {
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        const thisGroupID = Number(groupID);
+        const thisManagerID = Number(newManagerID);
+
+        const thisUser = await this.groupMappingEntity.findOneBy({ userID, groupID: thisGroupID });
+        const newManager = await this.groupMappingEntity.findOneBy({ userID: thisManagerID, groupID: thisGroupID });
+
+        if (!thisUser || !newManager) throw new NotFoundException();
+        if (!thisUser.isManager) throw new ForbiddenException();
+        if (newManager.isManager) throw new ConflictException();
+
+        await this.groupMappingEntity.update(newManager, {
+            isManager: true
+        });
+
+        return this.userEntity.findOne({
+            where: { userID: thisManagerID },
+            select: ['name', 'identify', 'profile']
+        });
+    }
 }
