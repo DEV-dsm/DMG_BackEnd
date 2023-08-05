@@ -22,10 +22,14 @@ export class User {
     @Column()
     email: string;
 
-    @Column({ nullable: true })
+    @Column({
+        default: 'asdf'
+    })
     profile: string;
 
-    @Column({ nullable: true })
+    @Column({
+        default: 'asdf'
+    })
     background: string;
 
     @Column()
