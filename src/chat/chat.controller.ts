@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Post, Query, UseFilters } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Patch, Post, Query, UseFilters } from '@nestjs/common';
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
@@ -93,6 +93,42 @@ export class ChatController {
             data,
             statusCode: 200,
             statusMsg: ""
+        })
+    }
+
+    @ApiOperation({ summary: '새로운 관리자 지정 API', description: '기존 방의 멤버 중 새로운 관리자 지정' })
+    @ApiHeader({ name: 'accesstoken', required: true })
+    @ApiParam({ name: 'groupID', required: true })
+    @ApiParam({ name: 'userID', required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: '관리자 지정 완료'
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: '관리자 지정 권한 없음'
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: '해당 그룹에 존재하지 않는 멤버'
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: '이미 관리자인 멤버'
+    })
+    @Patch('manage?')
+    async newGroupManager(
+        @Headers('authorization') accesstoken: string,
+        @Query('groupID') groupID: string,
+        @Query('userID') userID: string): Promise<object> {
+        console.log(groupID, userID)
+        
+        const data = await this.chatService.newGroupManager(accesstoken, groupID, userID);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: '관리자 지정 완료'
         })
     }
 }
