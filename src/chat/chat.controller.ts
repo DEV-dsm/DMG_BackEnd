@@ -47,6 +47,7 @@ export class ChatController {
 
     @ApiOperation({ summary: "개인 채팅방 만들기 API", description: "개인 채팅방 만들기" })
     @ApiHeader({ name: "authorization", required: true})
+    @ApiBody({ type: CreateGroupPersonDto })
     @ApiCreatedResponse({
         status: 201,
         description: "개인 채팅방 생성 완료"
