@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Patch, Post, Query, UseFilters } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Patch, Post, Query, UseFilters } from '@nestjs/common';
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
@@ -118,6 +118,31 @@ export class ChatController {
             data,
             statusCode: 200,
             statusMsg: "채팅방 초대 성공"
+        })
+    }
+
+    @ApiOperation({ summary: "채팅방 나가기 API", description: "채팅방 나가기" })
+    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiParam({ name: "groupID", required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: "채팅방 나가기 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "참여하고 있지 않거나 존재하지 않는 채팅방"
+    })
+    @Delete('gone?')
+    async goneGroup(@Headers('authorization') accesstoken: string, @Query('groupID') groupID: number) {
+        await this.chatService.goneGroup(accesstoken, groupID);
+
+        return Object.assign({
+            statusCode: 200,
+            statusMsg: "채팅방 나가기 완료"
         })
     }
 

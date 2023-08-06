@@ -166,6 +166,21 @@ export class ChatService {
         });
     }
 
+    async goneGroup(accesstoken, groupID) {
+        // JWT 유효성 검사 & userID 추출
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        // 채팅방 존재 & 참여 여부 확인
+        const thisGroup = await this.groupMappingEntity.findOneBy({ userID, groupID });
+        if (!thisGroup) throw new NotFoundException('참여하고 있지 않거나 존재하지 않는 채팅방');
+
+        // 채팅방 멤버에서 삭제
+        return await this.groupMappingEntity.delete({
+            userID,
+            groupID
+        });
+    }
+
     async getGroupInfo(accesstoken: string, groupID: number) {
         // JWT 유효성 검사 & userID 추출
         const { userID } = await this.userService.validateAccess(accesstoken);
