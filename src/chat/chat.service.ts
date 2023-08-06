@@ -166,7 +166,7 @@ export class ChatService {
         });
     }
 
-    async goneGroup(accesstoken, groupID) {
+    async goneGroup(accesstoken: string, groupID: number) {
         // JWT 유효성 검사 & userID 추출
         const { userID } = await this.userService.validateAccess(accesstoken);
 
