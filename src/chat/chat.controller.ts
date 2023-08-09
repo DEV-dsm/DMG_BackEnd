@@ -6,6 +6,7 @@ import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { InviteMemberDto } from './dto/inviteMember.dto';
+import { UpdateGroupInfoDto } from './dto/updateGroupInfo.dto';
 
 @ApiTags('/chat')
 @UseFilters(new HttpExceptionFilter())
@@ -18,7 +19,7 @@ export class ChatController {
     }
 
     @ApiOperation({ summary: "채팅 보내기 API", description: "텍스트형 채팅 발송 API" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiBody({ type: CreateMessageDto })
     @ApiCreatedResponse({
         status: 201,
@@ -151,8 +152,38 @@ export class ChatController {
         })
     }
 
+    @ApiOperation({ summary: '채팅방 정보 수정 API', description: '채팅방의 제목, 프로필 사진 등을 변경' })
+    @ApiHeader({ name: 'authorization', required: true })
+    @ApiBody({ type: UpdateGroupInfoDto })
+    @ApiOkResponse({
+        status: 200,
+        description: "채팅방 정보 수정 완료"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "본인이 속하지 않았거나, 매니저가 아닌 채팅방의 정보 수정 시도"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 채팅방"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "입력 자료 부족"
+    })
+    @Patch('info')
+    async updateGroupInfo(@Headers('authorization') accesstoken: string, @Body() updateGroupInfoDto: UpdateGroupInfoDto): Promise<object> {
+        const data = await this.chatService.updateGroupInfo(accesstoken, updateGroupInfoDto);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "정보 수정 완료"
+        })
+    }
+
     @ApiOperation({ summary: '새로운 관리자 지정 API', description: '기존 방의 멤버 중 새로운 관리자 지정' })
-    @ApiHeader({ name: 'accesstoken', required: true })
+    @ApiHeader({ name: 'authorization', required: true })
     @ApiParam({ name: 'groupID', required: true })
     @ApiParam({ name: 'userID', required: true })
     @ApiOkResponse({

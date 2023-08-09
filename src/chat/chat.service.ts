@@ -8,6 +8,7 @@ import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { InviteMemberDto } from './dto/inviteMember.dto';
+import { UpdateGroupInfoDto } from './dto/updateGroupInfo.dto';
 import { Chatting } from './entity/chatting.entity';
 import { Group } from './entity/group.entity';
 import { GroupMapping } from './entity/groupMapping.entity';
@@ -187,7 +188,35 @@ export class ChatService {
             .orderBy('isManager', 'DESC')
             .getRawMany();
         
-        return count;
+        return {
+            thisGroup,
+            member: count,
+        };
+    }
+
+    async updateGroupInfo(accesstoken: string, groupDto: UpdateGroupInfoDto) {
+        const { userID } = await this.userService.validateAccess(accesstoken);
+        const { groupID } = groupDto;
+
+        if (!groupID) throw new ConflictException();
+
+        const thisGroup = await this.groupEntity.findOneBy({ groupID });
+        if (!thisGroup) throw new NotFoundException();
+
+        const thisGroupMapping = await this.groupMappingEntity.findOneBy({ userID, groupID });
+        if (!thisGroupMapping || !thisGroupMapping.isManager) throw new ForbiddenException();
+
+        const name = groupDto.groupName ? groupDto.groupName : thisGroup.name;
+        const profile = groupDto.groupProfile ? groupDto.groupProfile : thisGroup.profile;
+
+        await this.groupEntity.update({
+            groupID
+        }, {
+            name,
+            profile
+        })
+
+        return await this.groupEntity.findOneBy({ groupID });
     }
 
     async newGroupManager(accesstoken: string, groupID: string, newManagerID: string) {
