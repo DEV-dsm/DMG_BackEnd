@@ -212,4 +212,32 @@ export class ChatService {
             select: ['name', 'identify', 'profile']
         });
     }
+
+    async setChatToNotice(accesstoken: string, chatID: number): Promise<object> {
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        const thisChat = await this.chattingEntity.findOneBy({ chatID });
+        if (!thisChat) throw new NotFoundException();
+
+        const thisGroup = await this.groupMappingEntity.findOneBy({ groupID: thisChat.groupID, userID });
+        if (!thisGroup) throw new ForbiddenException();
+
+        if (thisChat.isNotice) throw new ConflictException();
+
+        const thisNotice = await this.chattingEntity.findOneBy({ groupID: thisChat.groupID, isNotice: true })
+        if (thisNotice) await this.chattingEntity.update({
+            groupID: thisChat.groupID,
+            isNotice: true
+        }, {
+            isNotice: false
+        })
+
+        await this.chattingEntity.update({
+            chatID,
+        }, {
+            isNotice: true
+        })
+
+        return await this.chattingEntity.findOneBy({ chatID });
+    }
 }

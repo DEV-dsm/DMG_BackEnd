@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Headers, Patch, Post, Query, UseFilters } from '@nestjs/common';
-import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
 import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
@@ -123,7 +123,7 @@ export class ChatController {
 
     @ApiOperation({ summary: "채팅방 정보 확인하기 API", description: "특정 채팅방의 정보를 확인" })
     @ApiHeader({ name: "authorization", required: true })
-    @ApiParam({ name: "groupID", type: "number" })
+    @ApiQuery({ name: "groupID", type: "number" })
     @ApiOkResponse({
         status: 200,
         description: ""
@@ -153,8 +153,8 @@ export class ChatController {
 
     @ApiOperation({ summary: '새로운 관리자 지정 API', description: '기존 방의 멤버 중 새로운 관리자 지정' })
     @ApiHeader({ name: 'accesstoken', required: true })
-    @ApiParam({ name: 'groupID', required: true })
-    @ApiParam({ name: 'userID', required: true })
+    @ApiQuery({ name: 'groupID', required: true })
+    @ApiQuery({ name: 'userID', required: true })
     @ApiOkResponse({
         status: 200,
         description: '관리자 지정 완료'
@@ -184,6 +184,36 @@ export class ChatController {
             data,
             statusCode: 200,
             statusMsg: '관리자 지정 완료'
+        })
+    }
+
+    @ApiOperation({ summary: "채팅 공지 API", description: "채팅을 공지로 올림 / 한 채팅 그룹의 공지는 최대 1개" })
+    @ApiHeader({ name: 'authorization', required: true })
+    @ApiQuery({ name: 'chatID', type: "number" })
+    @ApiOkResponse({
+        status: 200,
+        description: "공지 완료"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "방에 존재하지 않는 인원의 접근"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 채팅"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "이미 채팅이 공지로 설정되어 있음"
+    })
+    @Patch('notice?')
+    async setChatToNotice(@Headers('authorization') accesstoken: string, @Query('chatID') chatID: number): Promise<object> {
+        const data = await this.chatService.setChatToNotice(accesstoken, chatID);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "채팅 공지 완료"
         })
     }
 }
