@@ -20,7 +20,7 @@ export class ProfileController {
         summary: "학생 프로필 수정하기 API",
         description: "학생 프로필 수정하기"
     })
-    @ApiHeader({ name: 'accesstoken', required: true })
+    @ApiHeader({ name: 'authorization', required: true })
     @ApiBody({ type: StudentProfileDto })
     @ApiOkResponse({
         status: 200,
@@ -53,7 +53,7 @@ export class ProfileController {
     }
 
     @ApiOperation({ summary: "학생 프로필 조회 API", description: "학생 프로필 조회" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiParam({ name: "userID", type: "number" })
     @ApiOkResponse({
         status: 200,
@@ -79,7 +79,7 @@ export class ProfileController {
     }
 
     @ApiOperation({ summary: "학생 리스트 조회 API", description: "학생 리스트 조회" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiOkResponse({
         status: 200,
         description: "학생 리스트 조회 성공"
@@ -100,7 +100,7 @@ export class ProfileController {
     }
 
     @ApiOperation({ summary: "교사 프로필 수정 API", description: "교사 프로필 수정" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiBody({ type: TeacherProfileDto })
     @ApiOkResponse({
         status: 200,
@@ -133,7 +133,7 @@ export class ProfileController {
     }
 
     @ApiOperation({ summary: "교사 프로필 조회 API", description: "교사 프로필 조회" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiParam({ name: "userID", type: "number" })
     @ApiOkResponse({
         status: 200,
@@ -159,7 +159,7 @@ export class ProfileController {
     }
 
     @ApiOperation({ summary: "교사 리스트 조회 API", description: "교사 리스트 조회" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiOkResponse({
         status: 200,
         description: "교사 리스트 조회 성공"
@@ -180,7 +180,7 @@ export class ProfileController {
     }
 
     @ApiOperation({ summary: "유저 검색 API", description: "유저 검색" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiParam({ name: "isStudent", type: "boolean" })
     @ApiOkResponse({
         status: 200,

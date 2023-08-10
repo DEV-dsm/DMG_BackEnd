@@ -16,6 +16,11 @@ export class Chatting {
     @Column()
     body: string;
 
+    @Column({
+        default: false
+    })
+    isNotice: boolean;
+
     @ManyToMany(
         () => User,
         user => user.chattingUser, {
