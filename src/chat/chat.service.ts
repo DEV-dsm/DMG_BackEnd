@@ -198,8 +198,6 @@ export class ChatService {
         const { userID } = await this.userService.validateAccess(accesstoken);
         const { groupID } = groupDto;
 
-        if (!groupID) throw new ConflictException();
-
         const thisGroup = await this.groupEntity.findOneBy({ groupID });
         if (!thisGroup) throw new NotFoundException();
 
