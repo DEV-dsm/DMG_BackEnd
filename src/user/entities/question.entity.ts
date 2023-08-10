@@ -15,7 +15,10 @@ export class Question {
     @Column({ type: "text" })
     content: string;
 
-    @ManyToOne(() => User, user => user.userID)
+    @ManyToOne(
+        () => User,
+        user => user.userID
+    )
     @JoinColumn({ name: 'userID' })
     user: User;
 }
