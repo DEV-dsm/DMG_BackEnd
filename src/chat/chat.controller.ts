@@ -121,7 +121,7 @@ export class ChatController {
         })
     }
 
-    @ApiOperation({ summary: "채팅방 나가기 API", description: "채팅방 나가기" })
+    @ApiOperation({ summary: "채팅방 나가기 API", description: "채팅방 나가기 / 한 채팅방에는 무조건 한 명 이상의 관리자가 존재해야함" })
     @ApiHeader({ name: "accesstoken", required: true })
     @ApiParam({ name: "groupID", required: true })
     @ApiOkResponse({
