@@ -15,14 +15,18 @@ export class GroupMapping {
 
     @OneToOne(
         () => User,
-        user => user.mappingUser
+        user => user.mappingUser, {
+            cascade: ["remove"]
+        }
     )
     @JoinColumn({ name: 'userID' })
     user: User;
 
     @ManyToOne(
         () => Group,
-        group => group.mappingGroup
+        group => group.mappingGroup, {
+            cascade: ["remove"]
+        }
     )
     @JoinColumn({ name: 'groupID' })
     thisGroup: Group;

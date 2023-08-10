@@ -6,6 +6,7 @@ import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { InviteMemberDto } from './dto/inviteMember.dto';
+import { UpdateGroupInfoDto } from './dto/updateGroupInfo.dto';
 
 @ApiTags('/chat')
 @UseFilters(new HttpExceptionFilter())
@@ -18,7 +19,7 @@ export class ChatController {
     }
 
     @ApiOperation({ summary: "채팅 보내기 API", description: "텍스트형 채팅 발송 API" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiBody({ type: CreateMessageDto })
     @ApiCreatedResponse({
         status: 201,
@@ -121,6 +122,35 @@ export class ChatController {
         })
     }
 
+    @ApiOperation({ summary: "채팅방 나가기 API", description: "채팅방 나가기 / 한 채팅방에는 무조건 한 명 이상의 관리자가 존재해야함" })
+    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiParam({ name: "groupID", required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: "채팅방 나가기 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "참여하고 있지 않거나 존재하지 않는 채팅방"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "한 채팅방에는 무조건 한 명 이상의 관리자가 있어야 합니다."
+    })
+    @Delete('gone?')
+    async goneGroup(@Headers('authorization') accesstoken: string, @Query('groupID') groupID: number) {
+        await this.chatService.goneGroup(accesstoken, groupID);
+
+        return Object.assign({
+            statusCode: 200,
+            statusMsg: "채팅방 나가기 완료"
+        })
+    }
+
     @ApiOperation({ summary: "채팅방 정보 확인하기 API", description: "특정 채팅방의 정보를 확인" })
     @ApiHeader({ name: "authorization", required: true })
     @ApiQuery({ name: "groupID", type: "number" })
@@ -151,10 +181,40 @@ export class ChatController {
         })
     }
 
+    @ApiOperation({ summary: '채팅방 정보 수정 API', description: '채팅방의 제목, 프로필 사진 등을 변경' })
+    @ApiHeader({ name: 'authorization', required: true })
+    @ApiBody({ type: UpdateGroupInfoDto })
+    @ApiOkResponse({
+        status: 200,
+        description: "채팅방 정보 수정 완료"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "본인이 속하지 않았거나, 매니저가 아닌 채팅방의 정보 수정 시도"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 채팅방"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "입력 자료 부족"
+    })
+    @Patch('info')
+    async updateGroupInfo(@Headers('authorization') accesstoken: string, @Body() updateGroupInfoDto: UpdateGroupInfoDto): Promise<object> {
+        const data = await this.chatService.updateGroupInfo(accesstoken, updateGroupInfoDto);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "정보 수정 완료"
+        })
+    }
+
     @ApiOperation({ summary: '새로운 관리자 지정 API', description: '기존 방의 멤버 중 새로운 관리자 지정' })
     @ApiHeader({ name: 'accesstoken', required: true })
-    @ApiQuery({ name: 'groupID', required: true })
-    @ApiQuery({ name: 'userID', required: true })
+    @ApiQuery({ name: 'groupID', type: "number" })
+    @ApiQuery({ name: 'userID', type: "number" })
     @ApiOkResponse({
         status: 200,
         description: '관리자 지정 완료'
