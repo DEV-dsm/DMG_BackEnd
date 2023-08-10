@@ -250,7 +250,7 @@ export class ChatService {
         return await this.groupEntity.findOneBy({ groupID });
     }
 
-    async newGroupManager(accesstoken: string, groupID: string, newManagerID: string) {
+    async newGroupManager(accesstoken: string, groupID: number, newManagerID: number) {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         const thisGroupID = Number(groupID);
@@ -290,6 +290,7 @@ export class ChatService {
         return await this.groupMappingEntity.update(thisUser, {
             isManager: false
         });
+    }
 
     async setChatToNotice(accesstoken: string, chatID: number): Promise<object> {
         const { userID } = await this.userService.validateAccess(accesstoken);

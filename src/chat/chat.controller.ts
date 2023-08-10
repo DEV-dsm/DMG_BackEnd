@@ -234,8 +234,8 @@ export class ChatController {
     @Patch('manage?')
     async newGroupManager(
         @Headers('authorization') accesstoken: string,
-        @Query('groupID') groupID: string,
-        @Query('userID') userID: string): Promise<object> {
+        @Query('groupID') groupID: number,
+        @Query('userID') userID: number): Promise<object> {
         console.log(groupID, userID)
         
         const data = await this.chatService.newGroupManager(accesstoken, groupID, userID);
@@ -280,11 +280,13 @@ export class ChatController {
         @Headers('authorization') accesstoken: string,
         @Query('groupID') groupID: number,
         @Query('userID') userID: number) {
-        await this.chatService.dismissManager(accesstoken, groupID, userID) ;
+        await this.chatService.dismissManager(accesstoken, groupID, userID);
 
         return Object.assign({
             statusCode: 200,
             statusMsg: "관리자 해제 완료"
+        });
+    }
 
     @ApiOperation({ summary: "채팅 공지 API", description: "채팅을 공지로 올림 / 한 채팅 그룹의 공지는 최대 1개" })
     @ApiHeader({ name: 'authorization', required: true })
