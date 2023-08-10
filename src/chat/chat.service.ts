@@ -245,4 +245,23 @@ export class ChatService {
             select: ['name', 'identify', 'profile']
         });
     }
+
+    async dismissManager(accesstoken: string, groupID: number, managerID: number): Promise<object> {
+        // JWT 유효성 검사 & userID 추출
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        // 채팅방 존재 & 참여 여부 확인, 권한 확인
+        const thisGroup = await this.groupMappingEntity.findOneBy({ groupID, userID });
+        const thisUser = await this.groupMappingEntity.findOneBy({ groupID, userID: managerID });
+        if (!thisGroup || !thisUser) throw new NotFoundException();
+        if (!thisGroup.isManager) throw new ForbiddenException('관리자 해제 권한 없음');
+        if (!thisUser.isManager) throw new ConflictException('이미 관리자가 아님');
+
+        // 자신의 관리자 권한을 해제시킬 때
+        if (userID === managerID) throw new ConflictException('자신의 관리자 권한은 해제시킬 수 없음');
+
+        return await this.groupMappingEntity.update(thisUser, {
+            isManager: false
+        });
+    }
 }
