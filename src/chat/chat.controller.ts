@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Patch, Post, Query, UseFilters } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Patch, Post, Query, UseFilters } from '@nestjs/common';
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
@@ -246,6 +246,45 @@ export class ChatController {
             statusMsg: '관리자 지정 완료'
         })
     }
+    
+    @ApiOperation({ summary: "관리자 해제 API", description: "관리자 해제" })
+    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiQuery({ name: "groupID", required: true })
+    @ApiQuery({ name: "userID", required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: "관리자 해제 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "관리자 해제 권한 없음"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "해당 그룹에 존재하지 않는 멤버"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "이미 관리자가 아님"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "채팅방엔 한 명 이상의 관리자 필요"
+    })
+    @Patch('manage/dismiss?')
+    async dismissManager(
+        @Headers('authorization') accesstoken: string,
+        @Query('groupID') groupID: number,
+        @Query('userID') userID: number) {
+        await this.chatService.dismissManager(accesstoken, groupID, userID) ;
+
+        return Object.assign({
+            statusCode: 200,
+            statusMsg: "관리자 해제 완료"
 
     @ApiOperation({ summary: "채팅 공지 API", description: "채팅을 공지로 올림 / 한 채팅 그룹의 공지는 최대 1개" })
     @ApiHeader({ name: 'authorization', required: true })

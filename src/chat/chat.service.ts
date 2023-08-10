@@ -273,6 +273,24 @@ export class ChatService {
         });
     }
 
+    async dismissManager(accesstoken: string, groupID: number, managerID: number): Promise<object> {
+        // JWT 유효성 검사 & userID 추출
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        // 채팅방 존재 & 참여 여부 확인, 권한 확인
+        const thisGroup = await this.groupMappingEntity.findOneBy({ groupID, userID });
+        const thisUser = await this.groupMappingEntity.findOneBy({ groupID, userID: managerID });
+        if (!thisGroup || !thisUser) throw new NotFoundException();
+        if (!thisGroup.isManager) throw new ForbiddenException('관리자 해제 권한 없음');
+        if (!thisUser.isManager) throw new ConflictException('이미 관리자가 아님');
+
+        const countManager = await this.groupMappingEntity.countBy({ groupID, isManager: true });
+        if (countManager === 1) throw new ConflictException("채팅방엔 한 명 이상의 관리자 필요");
+
+        return await this.groupMappingEntity.update(thisUser, {
+            isManager: false
+        });
+
     async setChatToNotice(accesstoken: string, chatID: number): Promise<object> {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
