@@ -136,6 +136,10 @@ export class ChatController {
         status: 404,
         description: "참여하고 있지 않거나 존재하지 않는 채팅방"
     })
+    @ApiConflictResponse({
+        status: 409,
+        description: "한 채팅방에는 무조건 한 명 이상의 관리자가 있어야 합니다."
+    })
     @Delete('gone?')
     async goneGroup(@Headers('authorization') accesstoken: string, @Query('groupID') groupID: number) {
         await this.chatService.goneGroup(accesstoken, groupID);
