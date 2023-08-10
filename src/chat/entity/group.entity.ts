@@ -10,7 +10,7 @@ export class Group {
     @Column({ nullable: true })
     name: string;
 
-    @Column()
+    @Column({ default: "채팅방 기본 프로필 사진" })
     profile: string;
 
     @ManyToMany(

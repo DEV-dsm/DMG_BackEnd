@@ -5,7 +5,7 @@ import { Question } from "./question.entity";
 import { Student } from "./student.entity";
 import { Teacher } from "./teacher.entity";
 
-@Entity('users')
+@Entity()
 export class User {
     @PrimaryGeneratedColumn()
     userID: number;

@@ -16,11 +16,21 @@ export class Chatting {
     @Column()
     body: string;
 
-    @ManyToMany(() => User, user => user.chattingUser)
+    @ManyToMany(
+        () => User,
+        user => user.chattingUser, {
+            cascade: ["remove"]
+        }
+    )
     @JoinColumn({ name: 'userID'})
     thisUser: User;
 
-    @ManyToOne(() => Group, group => group.chattingGroup)
+    @ManyToOne(
+        () => Group,
+        group => group.chattingGroup, {
+            cascade: ["remove"]
+        }
+    )
     @JoinColumn({ name: 'groupID' })
     thisGroup: Group;
 }

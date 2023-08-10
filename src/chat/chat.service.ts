@@ -166,6 +166,39 @@ export class ChatService {
         });
     }
 
+    async goneGroup(accesstoken: string, groupID: number) {
+        // JWT 유효성 검사 & userID 추출
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        // 채팅방 존재 & 참여 여부 확인
+        const thisGroup = await this.groupMappingEntity.findOneBy({ userID, groupID });
+        if (!thisGroup) throw new NotFoundException('참여하고 있지 않거나 존재하지 않는 채팅방');
+
+        // 해당 유저가 나가면 채팅방에 남은 멤버가 1명일 때
+        const count = await this.groupMappingEntity.countBy({ groupID });
+        if (count === 2) {
+            // 채팅방 삭제
+            await this.groupMappingEntity.delete({ groupID })
+            return await this.groupEntity.delete({ groupID });
+        }
+
+        // 관리자일 때
+        if (thisGroup.isManager) {
+            // 해당 유저가 나가면 관리자가 없을 때 (채팅방에 남은 멤버가 3명 이상일 때)
+            const countManager = await this.groupMappingEntity.countBy({
+                groupID,
+                isManager: true
+            })
+            if (countManager === 1) throw new ConflictException('새로운 관리자를 추가해야 나갈 수 있음.');
+        }
+
+        // 채팅방에서 멤버 삭제
+        return await this.groupMappingEntity.delete({
+            userID,
+            groupID
+        });
+    }
+
     async getGroupInfo(accesstoken: string, groupID: number) {
         // JWT 유효성 검사 & userID 추출
         const { userID } = await this.userService.validateAccess(accesstoken);
