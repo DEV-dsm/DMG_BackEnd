@@ -236,8 +236,6 @@ export class ChatController {
         @Headers('authorization') accesstoken: string,
         @Query('groupID') groupID: number,
         @Query('userID') userID: number): Promise<object> {
-        console.log(groupID, userID)
-        
         const data = await this.chatService.newGroupManager(accesstoken, groupID, userID);
 
         return Object.assign({
