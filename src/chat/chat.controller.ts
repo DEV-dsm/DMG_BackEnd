@@ -240,6 +240,10 @@ export class ChatController {
         status: 409,
         description: "이미 관리자가 아님"
     })
+    @ApiConflictResponse({
+        status: 409,
+        description: "채팅방엔 한 명 이상의 관리자 필요"
+    })
     @Patch('manage/dismiss?')
     async dismissManager(
         @Headers('authorization') accesstoken: string,

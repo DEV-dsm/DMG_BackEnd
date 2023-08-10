@@ -257,8 +257,8 @@ export class ChatService {
         if (!thisGroup.isManager) throw new ForbiddenException('관리자 해제 권한 없음');
         if (!thisUser.isManager) throw new ConflictException('이미 관리자가 아님');
 
-        // 자신의 관리자 권한을 해제시킬 때
-        if (userID === managerID) throw new ConflictException('자신의 관리자 권한은 해제시킬 수 없음');
+        const countManager = await this.groupMappingEntity.countBy({ groupID, isManager: true });
+        if (countManager === 1) throw new ConflictException("채팅방엔 한 명 이상의 관리자 필요");
 
         return await this.groupMappingEntity.update(thisUser, {
             isManager: false
