@@ -151,6 +151,42 @@ export class ChatController {
         })
     }
 
+    @ApiOperation({ summary: "채팅방 멤버 강제퇴장 API", description: "채팅방 멤버 강제퇴장" })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiQuery({ name: "groupID", required: true })
+    @ApiQuery({ name: "userID", required: true })
+    @ApiOkResponse({
+        status: 200,
+        description: "강제퇴장 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "권한 없음"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재 & 참여하지 않음"
+    })
+    @ApiConflictResponse({
+        status: 409,
+        description: "본인 또는 관리자를 강제퇴장시킬 수 없음"
+    })
+    @Delete('getOut?')
+    async getOutMember(@Headers('authorization') accesstoken: string,
+    @Query('groupID') groupID: number,
+    @Query('userID') userID: number) {
+        await this.chatService.getOutMember(accesstoken, groupID, userID);
+
+        return Object.assign({
+            statusCode: 200,
+            statusMsg: "강제퇴장 완료"
+        })
+    }
+
     @ApiOperation({ summary: "채팅방 정보 확인하기 API", description: "특정 채팅방의 정보를 확인" })
     @ApiHeader({ name: "authorization", required: true })
     @ApiQuery({ name: "groupID", type: "number" })
@@ -234,8 +270,8 @@ export class ChatController {
     @Patch('manage?')
     async newGroupManager(
         @Headers('authorization') accesstoken: string,
-        @Query('groupID') groupID: number,
-        @Query('userID') userID: number): Promise<object> {
+        @Query('groupID') groupID: string,
+        @Query('userID') userID: string): Promise<object> {
         console.log(groupID, userID)
         
         const data = await this.chatService.newGroupManager(accesstoken, groupID, userID);
@@ -249,8 +285,8 @@ export class ChatController {
     
     @ApiOperation({ summary: "관리자 해제 API", description: "관리자 해제" })
     @ApiHeader({ name: "accesstoken", required: true })
-    @ApiQuery({ name: "groupID", required: true })
-    @ApiQuery({ name: "userID", required: true })
+    @ApiQuery({ name: "groupID", type: "number" })
+    @ApiQuery({ name: "userID", type: "number" })
     @ApiOkResponse({
         status: 200,
         description: "관리자 해제 완료"
@@ -273,6 +309,10 @@ export class ChatController {
     })
     @ApiConflictResponse({
         status: 409,
+        description: "개인 채팅방일 때는 관리자 해제시킬 수 없음"
+    })
+    @ApiConflictResponse({
+        status: 409,
         description: "채팅방엔 한 명 이상의 관리자 필요"
     })
     @Patch('manage/dismiss?')
@@ -280,14 +320,14 @@ export class ChatController {
         @Headers('authorization') accesstoken: string,
         @Query('groupID') groupID: number,
         @Query('userID') userID: number) {
-        await this.chatService.dismissManager(accesstoken, groupID, userID);
+        await this.chatService.dismissManager(accesstoken, groupID, userID) ;
 
         return Object.assign({
             statusCode: 200,
             statusMsg: "관리자 해제 완료"
-        });
+        })
     }
-
+    
     @ApiOperation({ summary: "채팅 공지 API", description: "채팅을 공지로 올림 / 한 채팅 그룹의 공지는 최대 1개" })
     @ApiHeader({ name: 'authorization', required: true })
     @ApiQuery({ name: 'chatID', type: "number" })

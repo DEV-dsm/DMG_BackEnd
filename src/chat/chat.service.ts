@@ -185,7 +185,7 @@ export class ChatService {
 
         // 관리자일 때
         if (thisGroup.isManager) {
-            // 해당 유저가 나가면 관리자가 없을 때 (채팅방에 남은 멤버가 3명 이상일 때)
+            // 해당 유저가 나가면 관리자가 없을 때 (채팅방에 남은 멤버가 3명 이상일 때 = 단체 채팅방일 때)
             const countManager = await this.groupMappingEntity.countBy({
                 groupID,
                 isManager: true
@@ -198,6 +198,22 @@ export class ChatService {
             userID,
             groupID
         });
+    }
+
+    async getOutMember(accesstoken: string, groupID: number, memberID: number) {
+        // JWT 유효성 검사 & userID 추출
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        // 존재 & 권한 여부
+        const thisGroup = await this.groupMappingEntity.findOneBy({ groupID, userID });
+        const thisUser = await this.groupMappingEntity.findOneBy({ groupID, userID: memberID });
+        if (!thisGroup || !thisUser) throw new NotFoundException("존재 & 참여하지 않음");
+        if (!thisGroup.isManager) throw new ForbiddenException("권한 없음");
+        
+        //채팅인원 수가 2명일 때도 포함
+        if (thisUser.isManager) throw new ConflictException("관리자를 강제퇴장시킬 수 없음");
+
+        return await this.groupMappingEntity.delete({ groupID, userID: memberID });
     }
 
     async getGroupInfo(accesstoken: string, groupID: number) {
@@ -250,7 +266,7 @@ export class ChatService {
         return await this.groupEntity.findOneBy({ groupID });
     }
 
-    async newGroupManager(accesstoken: string, groupID: number, newManagerID: number) {
+    async newGroupManager(accesstoken: string, groupID: string, newManagerID: string) {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         const thisGroupID = Number(groupID);
@@ -285,6 +301,12 @@ export class ChatService {
         if (!thisUser.isManager) throw new ConflictException('이미 관리자가 아님');
 
         const countManager = await this.groupMappingEntity.countBy({ groupID, isManager: true });
+        const countMember = await this.groupMappingEntity.countBy({ groupID });
+
+        // 개인 채팅방일 때
+        if (countMember === 2 && countManager === 2) throw new ConflictException("개인 채팅방일 때는 관리자 해제시킬 수 없음");
+
+        // 본인의 관리자 권한을 해제할 수 있지만 채팅방엔 한 명 이상의 관리자 필요
         if (countManager === 1) throw new ConflictException("채팅방엔 한 명 이상의 관리자 필요");
 
         return await this.groupMappingEntity.update(thisUser, {
