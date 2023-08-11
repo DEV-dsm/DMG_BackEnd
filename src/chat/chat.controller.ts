@@ -124,7 +124,7 @@ export class ChatController {
 
     @ApiOperation({ summary: "채팅방 나가기 API", description: "채팅방 나가기 / 한 채팅방에는 무조건 한 명 이상의 관리자가 존재해야함" })
     @ApiHeader({ name: "accesstoken", required: true })
-    @ApiParam({ name: "groupID", required: true })
+    @ApiQuery({ name: "groupID", type: "number" })
     @ApiOkResponse({
         status: 200,
         description: "채팅방 나가기 완료"
@@ -153,8 +153,8 @@ export class ChatController {
 
     @ApiOperation({ summary: "채팅방 멤버 강제퇴장 API", description: "채팅방 멤버 강제퇴장" })
     @ApiHeader({ name: "authorization", required: true })
-    @ApiQuery({ name: "groupID", required: true })
-    @ApiQuery({ name: "userID", required: true })
+    @ApiQuery({ name: "groupID", type: "number" })
+    @ApiQuery({ name: "userID", type: "number" })
     @ApiOkResponse({
         status: 200,
         description: "강제퇴장 완료"
