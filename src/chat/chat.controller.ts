@@ -85,6 +85,10 @@ export class ChatController {
         status: 401,
         description: "액세스 토큰 검증 실패"
     })
+    @ApiConflictResponse({
+        status: 409,
+        description: "자기 자신이 포함되거나 같은 사람이 여럿 포함됨"
+    })
     @Post('newPeople')
     async createGroupPeople(@Headers('authorization') accesstoken: string, @Body() createGroupDto: CreateGroupPeopleDto) {
         const data = await this.chatService.createGroupPeople(accesstoken, createGroupDto);
