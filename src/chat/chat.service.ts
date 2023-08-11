@@ -253,11 +253,8 @@ export class ChatService {
     async newGroupManager(accesstoken: string, groupID: number, newManagerID: number) {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
-        const thisGroupID = Number(groupID);
-        const thisManagerID = Number(newManagerID);
-
-        const thisUser = await this.groupMappingEntity.findOneBy({ userID, groupID: thisGroupID });
-        const newManager = await this.groupMappingEntity.findOneBy({ userID: thisManagerID, groupID: thisGroupID });
+        const thisUser = await this.groupMappingEntity.findOneBy({ userID, groupID });
+        const newManager = await this.groupMappingEntity.findOneBy({ userID: newManagerID, groupID });
 
         if (!thisUser || !newManager) throw new NotFoundException();
         if (!thisUser.isManager) throw new ForbiddenException();
@@ -268,7 +265,7 @@ export class ChatService {
         });
 
         return await this.userEntity.findOne({
-            where: { userID: thisManagerID },
+            where: { userID: newManagerID },
             select: ['name', 'identify', 'profile']
         });
     }
