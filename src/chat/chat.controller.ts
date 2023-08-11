@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Patch, Post, Query, UseFilters } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query, UseFilters } from '@nestjs/common';
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
@@ -45,6 +45,28 @@ export class ChatController {
             data,
             statusCode: 201,
             statusMsg: "OK"
+        })
+    }
+
+    @ApiOperation({ summary: "채팅 조회 API", description: "채팅방의 채팅 조회 API" })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiParam({ name: "groupID", type: "number" })
+    @ApiOkResponse({
+        status: 200,
+        description: "메시지 조회 성공"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "존재하지 않거나 자신이 없는 채팅방에 접근"
+    })
+    @Get(':groupID')
+    async readMessage(@Headers('authorization') accesstoken: string, @Param('groupID') groupID: number): Promise<object> {
+        const data = await this.chatService.readMessage(accesstoken, groupID);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "메시지 조회 성공"
         })
     }
 

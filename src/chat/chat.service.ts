@@ -59,6 +59,17 @@ export class ChatService {
         return sending;
     }
 
+    async readMessage(accesstoken: string, groupID: number): Promise<object> {
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        const thisGroup = await this.groupMappingEntity.findOneBy({ userID, groupID });
+        if (!thisGroup) throw new ForbiddenException();
+
+        const thisMessages = await this.chattingEntity.findBy({ groupID });
+
+        return thisMessages;
+    }
+
     async createGroupPerson(accesstoken: string, createGroupDto: CreateGroupPersonDto) {
         // JWT 유효성 검사 & userID 추출
         const { userID } = await this.userService.validateAccess(accesstoken);
