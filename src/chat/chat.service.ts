@@ -66,6 +66,8 @@ export class ChatService {
         // 파라미터 분리
         const { name, profile, person } = createGroupDto;
 
+        if (person == userID) throw new ConflictException();
+
         // 상대방 찾기
         const findUser = await this.userEntity.findOneBy({ userID: person });
 
