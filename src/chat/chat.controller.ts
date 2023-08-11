@@ -59,6 +59,10 @@ export class ChatController {
         status: 401,
         description: "액세스 토큰 검증 실패"
     })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 사람을 초대함"
+    })
     @ApiConflictResponse({
         status: 409,
         description: "초대하는 사람은 다른 사람이어야 함"
@@ -84,6 +88,10 @@ export class ChatController {
     @ApiUnauthorizedResponse({
         status: 401,
         description: "액세스 토큰 검증 실패"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "존재하지 않는 사람을 초대함"
     })
     @ApiConflictResponse({
         status: 409,

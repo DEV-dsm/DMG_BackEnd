@@ -71,6 +71,8 @@ export class ChatService {
         // 상대방 찾기
         const findUser = await this.userEntity.findOneBy({ userID: person });
 
+        if (!findUser) throw new NotFoundException();
+
         // 새 채팅방 생성
         const group = await this.groupEntity.save({
             name,
@@ -126,6 +128,8 @@ export class ChatService {
         for (let i = 0; i < people.length; i++) {
             // 멤버 찾기
             const findUser = await this.userEntity.findOneBy({ userID: people[i] })
+
+            if (!findUser) throw new NotFoundException();
 
             await this.groupMappingEntity.save({
                 groupID: group.groupID,
