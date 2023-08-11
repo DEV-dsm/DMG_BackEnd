@@ -270,8 +270,8 @@ export class ChatController {
     @Patch('manage?')
     async newGroupManager(
         @Headers('authorization') accesstoken: string,
-        @Query('groupID') groupID: string,
-        @Query('userID') userID: string): Promise<object> {
+        @Query('groupID') groupID: number,
+        @Query('userID') userID: number): Promise<object> {
         console.log(groupID, userID)
         
         const data = await this.chatService.newGroupManager(accesstoken, groupID, userID);
@@ -320,7 +320,7 @@ export class ChatController {
         @Headers('authorization') accesstoken: string,
         @Query('groupID') groupID: number,
         @Query('userID') userID: number) {
-        await this.chatService.dismissManager(accesstoken, groupID, userID) ;
+        await this.chatService.dismissManager(accesstoken, groupID, userID);
 
         return Object.assign({
             statusCode: 200,
