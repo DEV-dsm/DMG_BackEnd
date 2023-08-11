@@ -1,5 +1,5 @@
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Group } from "./group.entity";
 
 @Entity()
@@ -20,6 +20,9 @@ export class Chatting {
         default: false
     })
     isNotice: boolean;
+
+    @CreateDateColumn()
+    createdAt: Date;
 
     @ManyToMany(
         () => User,
