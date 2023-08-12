@@ -55,6 +55,10 @@ export class ChatController {
         status: 200,
         description: "메시지 조회 성공"
     })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
     @ApiForbiddenResponse({
         status: 403,
         description: "존재하지 않거나 자신이 없는 채팅방에 접근"
@@ -246,6 +250,10 @@ export class ChatController {
         status: 200,
         description: "채팅방 정보 수정 완료"
     })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
     @ApiForbiddenResponse({
         status: 403,
         description: "본인이 속하지 않았거나, 매니저가 아닌 채팅방의 정보 수정 시도"
@@ -276,6 +284,10 @@ export class ChatController {
     @ApiOkResponse({
         status: 200,
         description: '관리자 지정 완료'
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
     })
     @ApiForbiddenResponse({
         status: 403,
@@ -354,6 +366,10 @@ export class ChatController {
     @ApiOkResponse({
         status: 200,
         description: "공지 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
     })
     @ApiForbiddenResponse({
         status: 403,
