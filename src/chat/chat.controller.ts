@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Patch, Post, Query, UseFilters } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query, UseFilters } from '@nestjs/common';
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
@@ -45,6 +45,32 @@ export class ChatController {
             data,
             statusCode: 201,
             statusMsg: "OK"
+        })
+    }
+
+    @ApiOperation({ summary: "채팅 조회 API", description: "채팅방의 채팅 조회 API" })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiParam({ name: "groupID", type: "number" })
+    @ApiOkResponse({
+        status: 200,
+        description: "메시지 조회 성공"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "존재하지 않거나 자신이 없는 채팅방에 접근"
+    })
+    @Get(':groupID')
+    async readMessage(@Headers('authorization') accesstoken: string, @Param('groupID') groupID: number): Promise<object> {
+        const data = await this.chatService.readMessage(accesstoken, groupID);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "메시지 조회 성공"
         })
     }
 
@@ -224,6 +250,10 @@ export class ChatController {
         status: 200,
         description: "채팅방 정보 수정 완료"
     })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
     @ApiForbiddenResponse({
         status: 403,
         description: "본인이 속하지 않았거나, 매니저가 아닌 채팅방의 정보 수정 시도"
@@ -254,6 +284,10 @@ export class ChatController {
     @ApiOkResponse({
         status: 200,
         description: '관리자 지정 완료'
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
     })
     @ApiForbiddenResponse({
         status: 403,
@@ -332,6 +366,10 @@ export class ChatController {
     @ApiOkResponse({
         status: 200,
         description: "공지 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
     })
     @ApiForbiddenResponse({
         status: 403,
