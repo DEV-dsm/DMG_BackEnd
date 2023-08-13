@@ -77,8 +77,12 @@ export class ChatService {
         // 파라미터 분리
         const { name, profile, person } = createGroupDto;
 
+        if (person === userID) throw new ConflictException();
+
         // 상대방 찾기
         const findUser = await this.userEntity.findOneBy({ userID: person });
+
+        if (!findUser) throw new NotFoundException();
 
         // 새 채팅방 생성
         const group = await this.groupEntity.save({
@@ -114,6 +118,10 @@ export class ChatService {
         // 파라미터 분리
         const { name, profile, people } = createGroupDto;
 
+        if (people.length == 1) throw new ConflictException(); // 사람이 한 명인 경우 (createGroupPerson)
+        if (people.includes(userID)) throw new ConflictException('자신을 포함할 수 없음'); // userID를 포함하는 경우
+        if (people.length != new Set(people).size) throw new ConflictException('같은 사람이 여럿 포함될 수 없음'); // 중복값이 존재하는 경우
+
         // 새 채팅방 생성
         const group = await this.groupEntity.save({
             name,
@@ -131,6 +139,8 @@ export class ChatService {
         for (let i = 0; i < people.length; i++) {
             // 멤버 찾기
             const findUser = await this.userEntity.findOneBy({ userID: people[i] })
+
+            if (!findUser) throw new NotFoundException();
 
             await this.groupMappingEntity.save({
                 groupID: group.groupID,
