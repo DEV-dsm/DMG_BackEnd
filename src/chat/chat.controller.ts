@@ -48,32 +48,6 @@ export class ChatController {
         })
     }
 
-    @ApiOperation({ summary: "채팅 조회 API", description: "채팅방의 채팅 조회 API" })
-    @ApiHeader({ name: "authorization", required: true })
-    @ApiParam({ name: "groupID", type: "number" })
-    @ApiOkResponse({
-        status: 200,
-        description: "메시지 조회 성공"
-    })
-    @ApiUnauthorizedResponse({
-        status: 401,
-        description: "액세스 토큰 검증 실패"
-    })
-    @ApiForbiddenResponse({
-        status: 403,
-        description: "존재하지 않거나 자신이 없는 채팅방에 접근"
-    })
-    @Get(':groupID')
-    async readMessage(@Headers('authorization') accesstoken: string, @Param('groupID') groupID: number): Promise<object> {
-        const data = await this.chatService.readMessage(accesstoken, groupID);
-
-        return Object.assign({
-            data,
-            statusCode: 200,
-            statusMsg: "메시지 조회 성공"
-        })
-    }
-
     @ApiOperation({ summary: "개인 채팅방 만들기 API", description: "개인 채팅방 만들기" })
     @ApiHeader({ name: "authorization", required: true})
     @ApiBody({ type: CreateGroupPersonDto })
@@ -407,6 +381,54 @@ export class ChatController {
             data,
             statusCode: 200,
             statusMsg: "채팅 공지 완료"
+        })
+    }
+
+    @ApiOperation({ summary: "특정 유저의 레포 목록 가져오기 API", description: "깃허브 아이디를 통해 해당 유저의 레포지토리 목록을 가져옴" })
+    @ApiHeader({ name: 'authorization', required: true })
+    @ApiBody({ type: 'string' })
+    @ApiOkResponse({
+        status: 200,
+        description: ""
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @Get('github')
+    async choosePrRepo(@Headers('authorization') accesstoken: string, @Body('userName') userName: string): Promise<object> {
+        const data = await this.chatService.choosePrRepo(accesstoken, userName);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: ""
+        })
+    }
+
+    @ApiOperation({ summary: "채팅 조회 API", description: "채팅방의 채팅 조회 API" })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiParam({ name: "groupID", type: "number" })
+    @ApiOkResponse({
+        status: 200,
+        description: "메시지 조회 성공"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "존재하지 않거나 자신이 없는 채팅방에 접근"
+    })
+    @Get(':groupID')
+    async readMessage(@Headers('authorization') accesstoken: string, @Param('groupID') groupID: number): Promise<object> {
+        const data = await this.chatService.readMessage(accesstoken, groupID);
+
+        return Object.assign({
+            data,
+            statusCode: 200,
+            statusMsg: "메시지 조회 성공"
         })
     }
 }
