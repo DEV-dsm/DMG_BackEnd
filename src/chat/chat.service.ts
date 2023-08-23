@@ -12,6 +12,7 @@ import { UpdateGroupInfoDto } from './dto/updateGroupInfo.dto';
 import { Chatting } from './entity/chatting.entity';
 import { Group } from './entity/group.entity';
 import { GroupMapping } from './entity/groupMapping.entity';
+import { Octokit } from 'octokit';
 
 // @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -358,5 +359,33 @@ export class ChatService {
         })
 
         return await this.chattingEntity.findOneBy({ chatID });
+    }
+
+    async choosePrRepo(accesstoken: string, username: string): Promise<object> {
+        const { userID } = await this.userService.validateAccess(accesstoken);
+        
+        const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+        const option = {
+            username,
+            headers: {
+                'X-GitHub-Api-Version' : '2022-11-28'
+            }
+        }
+
+        const repo = await octokit.request(`GET /users/{username}/repos`, option);
+
+        const thisArr = [];
+        
+        for (let i = 0; i < repo.data.length; i++){
+            const thisRepo = repo.data[i];
+            thisArr.push({
+                id: thisRepo.id,
+                name: thisRepo.name,
+                full_name: thisRepo.full_name,
+                user_login: thisRepo.owner.login
+            })
+        }
+
+        return thisArr;
     }
 }
