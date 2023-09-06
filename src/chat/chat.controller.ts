@@ -78,31 +78,6 @@ export class ChatController {
         })
     }
 
-    @ApiOperation({ summary: "채팅방 리스트 조회하기 API", description: "채팅방 리스트 조회하기" })
-    @ApiHeader({ name: "accesstoken", required: true })
-    @ApiOkResponse({
-        status: 200,
-        description: "채팅방 리스트 조회 성공"
-    })
-    @ApiUnauthorizedResponse({
-        status: 401,
-        description: "액세스 토큰 검증 실패"
-    })
-    @ApiNotFoundResponse({
-        status: 404,
-        description: "참여한 채팅방이 없음"
-    })
-    @Get('list')
-    async getChatList(@Headers('authorization') accesstoken: string) {
-        const data = await this.chatService.getChatList(accesstoken);
-
-        return Object.assign({
-            data,
-            statusCode: 200,
-            statusMsg: "OK"
-        })
-    }
-
     @ApiOperation({ summary: "단체 채팅방 만들기 API", description: "단체 채팅방 만들기" })
     @ApiHeader({ name: "authorization", required: true })
     @ApiBody({ type: CreateGroupPeopleDto })
