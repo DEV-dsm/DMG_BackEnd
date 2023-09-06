@@ -14,19 +14,19 @@ import { UserService } from 'src/user/user.service';
 import { Chatting } from './entity/chatting.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Student, Teacher, Question, Group, GroupMapping, Chatting]),
-    JwtModule.register({
-      secret: process.env.SECRETORPRIVATE,
-      signOptions: {
-        expiresIn: '4h',
-      },
-      verifyOptions: {
-        complete: false
-      }
-    })
-  ],
-  providers: [ChatGateway, ChatService, UserService],
-  controllers: [ChatController]
+	imports: [
+		TypeOrmModule.forFeature([User, Student, Teacher, Question, Group, GroupMapping, Chatting]),
+		JwtModule.register({
+		secret: process.env.SECRETORPRIVATE,
+		signOptions: {
+			expiresIn: '4h',
+		},
+		verifyOptions: {
+			complete: false
+		}
+		})
+	],
+	providers: [ChatGateway, ChatService, UserService],
+	controllers: [ChatController]
 })
 export class ChatModule {}
