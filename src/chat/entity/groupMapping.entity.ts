@@ -29,5 +29,5 @@ export class GroupMapping {
         }
     )
     @JoinColumn({ name: 'groupID' })
-    thisGroup: Group;
+    group: Group;
 }

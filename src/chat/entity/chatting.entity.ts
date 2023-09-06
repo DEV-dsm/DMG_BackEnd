@@ -1,5 +1,5 @@
 import { User } from "src/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Group } from "./group.entity";
 
 @Entity()
@@ -19,12 +19,17 @@ export class Chatting {
     @Column({
         default: false
     })
+    isAnnounce: boolean;
+
+    @Column({
+        default: false
+    })
     isNotice: boolean;
 
     @CreateDateColumn()
     createdAt: Date;
 
-    @ManyToMany(
+    @ManyToOne(
         () => User,
         user => user.chattingUser, {
             cascade: ["remove"]

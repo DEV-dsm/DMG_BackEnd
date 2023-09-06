@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Chatting } from "./chatting.entity";
 import { GroupMapping } from "./groupMapping.entity";
 
@@ -13,7 +13,7 @@ export class Group {
     @Column({ default: "채팅방 기본 프로필 사진" })
     profile: string;
 
-    @ManyToMany(
+    @OneToMany(
         () => Chatting,
         chatting => chatting.thisGroup
     )
@@ -21,7 +21,7 @@ export class Group {
 
     @OneToMany(
         () => GroupMapping,
-        groupMapping => groupMapping.thisGroup
+        groupMapping => groupMapping.group
     )
     mappingGroup: GroupMapping;
 }
