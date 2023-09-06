@@ -174,6 +174,48 @@ export class ChatService {
         return madeIn;
     }
 
+    async getChatList(accesstoken: string): Promise<object> {
+        const { userID } = await this.userService.validateAccess(accesstoken);
+    
+        const thisQuery = await this.groupEntity
+          .createQueryBuilder('qb')
+          .select('MAX(chat.chatID) AS chatID')
+          .from(Chatting, 'chat')
+          .addFrom(Group, 'group')
+          .where('group.groupID = chat.groupID')
+          .groupBy('group.groupID')
+          .getRawMany();
+    
+        const arr: number[] = [];
+    
+        for (let i = 0; i < thisQuery.length; i++) {
+          arr.push(thisQuery[i].chatID);
+        }
+    
+        const thisList = await this.groupEntity
+          .createQueryBuilder('qb')
+          .leftJoin(Chatting, 'chat', 'chat.groupID = qb.groupID')
+          .leftJoin(
+            GroupMapping,
+            'map',
+            'map.groupID = qb.groupID',
+          )
+          .select([
+            'qb.groupID as groupID',
+            'qb.name as name',
+            'qb.profile AS profile',
+            'chat.body AS body',
+            'chat.isAnnounce AS isAnnounce',
+            'map.userID AS userID',
+            'chat.chatID AS chatID',
+          ])
+          .where('chat.chatID IN (:aarr)', { aarr: arr})
+          .andWhere('map.userID = :userID', { userID })
+          .getRawMany();
+    
+        return thisList;
+      }
+
     async inviteMember(accesstoken: string, inviteMemberDto: InviteMemberDto) {
         // JWT 유효성 검사 & userID 추출
         const { userID } = await this.userService.validateAccess(accesstoken);
