@@ -437,7 +437,7 @@ export class ChatController {
     @ApiBody({ type: RepoDto })
     @ApiCreatedResponse({
         status: 201,
-        description: ""
+        description: "웹훅 생성 완료"
     })
     @ApiUnauthorizedResponse({
         status: 401,
@@ -462,7 +462,7 @@ export class ChatController {
         return {
             data,
             statusCode: 201,
-            statusMsg: ""
+            statusMsg: "웹훅 생성 완료"
         }
     }
 
