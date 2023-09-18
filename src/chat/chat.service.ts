@@ -18,6 +18,7 @@ import { Chatting } from './entity/chatting.entity';
 import { Group } from './entity/group.entity';
 import { GroupMapping } from './entity/groupMapping.entity';
 import { Octokit } from 'octokit';
+import { RepoDto } from './dto/repo.dto';
 
 // @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -30,7 +31,7 @@ export class ChatService {
         private groupMappingEntity: Repository<GroupMapping>,
         @InjectRepository(Chatting) private chattingEntity: Repository<Chatting>,
         @InjectRepository(User) private userEntity: Repository<User>,
-    ) {}
+    ) { }
 
     async createMessage(
         accesstoken: string,
@@ -48,8 +49,8 @@ export class ChatService {
 
         // 이 그룹에 메시지를 보내는 멤버가 있는지 확인
         const thisMapping = await this.groupMappingEntity.findOneBy({
-        groupID,
-        userID,
+            groupID,
+            userID,
         });
         if (!thisMapping) throw new ConflictException();
 
@@ -66,8 +67,8 @@ export class ChatService {
 
         // 서버에 이벤트 발생
         const sending = this.chatGateway.server
-        .to(`${groupID}`)
-        .emit('message', { message: body });
+            .to(`${groupID}`)
+            .emit('message', { message: body });
 
         return sending;
     }
@@ -76,8 +77,8 @@ export class ChatService {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         const thisGroup = await this.groupMappingEntity.findOneBy({
-        userID,
-        groupID,
+            userID,
+            groupID,
         });
         if (!thisGroup) throw new ForbiddenException();
 
@@ -96,37 +97,37 @@ export class ChatService {
         // 파라미터 분리
         const { name, profile, person } = createGroupDto;
 
-            if (person === userID) throw new ConflictException();
+        if (person === userID) throw new ConflictException();
 
         // 상대방 찾기
         const findUser = await this.userEntity.findOneBy({ userID: person });
 
-            if (!findUser) throw new NotFoundException();
+        if (!findUser) throw new NotFoundException();
 
         // 새 채팅방 생성
         const group = await this.groupEntity.save({
-        name,
-        profile,
+            name,
+            profile,
         });
 
         // 개인 채팅방 만든이 추가
         const madeIn = await this.groupMappingEntity.save({
-        groupID: group.groupID,
-        userID: userID,
-        isManager: true,
+            groupID: group.groupID,
+            userID: userID,
+            isManager: true,
         });
 
         // 개인 채팅방 상대방 추가
         const member = await this.groupMappingEntity.save({
-        groupID: group.groupID,
-        userID: findUser.userID,
-        isManager: true,
+            groupID: group.groupID,
+            userID: findUser.userID,
+            isManager: true,
         });
 
         return {
-        group,
-        madeIn,
-        member,
+            group,
+            madeIn,
+            member,
         };
     }
 
@@ -140,35 +141,35 @@ export class ChatService {
         // 파라미터 분리
         const { name, profile, people } = createGroupDto;
 
-            if (people.length == 1) throw new ConflictException(); // 사람이 한 명인 경우 (createGroupPerson)
-            if (people.includes(userID)) throw new ConflictException('자신을 포함할 수 없음'); // userID를 포함하는 경우
-            if (people.length != new Set(people).size) throw new ConflictException('같은 사람이 여럿 포함될 수 없음'); // 중복값이 존재하는 경우
+        if (people.length == 1) throw new ConflictException(); // 사람이 한 명인 경우 (createGroupPerson)
+        if (people.includes(userID)) throw new ConflictException('자신을 포함할 수 없음'); // userID를 포함하는 경우
+        if (people.length != new Set(people).size) throw new ConflictException('같은 사람이 여럿 포함될 수 없음'); // 중복값이 존재하는 경우
 
         // 새 채팅방 생성
         const group = await this.groupEntity.save({
-        name,
-        profile,
+            name,
+            profile,
         });
 
         // 단체 채팅방 만든이 추가 및 관리자 할당
         const madeIn = await this.groupMappingEntity.save({
-        groupID: group.groupID,
-        userID,
-        isManager: true,
+            groupID: group.groupID,
+            userID,
+            isManager: true,
         });
 
         // 단체 채팅방 멤버 추가
         for (let i = 0; i < people.length; i++) {
-        // 멤버 찾기
-        const findUser = await this.userEntity.findOneBy({ userID: people[i] });
+            // 멤버 찾기
+            const findUser = await this.userEntity.findOneBy({ userID: people[i] });
 
-                if (!findUser) throw new NotFoundException();
+            if (!findUser) throw new NotFoundException();
 
-        await this.groupMappingEntity.save({
-            groupID: group.groupID,
-            userID: findUser.userID,
-            isManager: false,
-        });
+            await this.groupMappingEntity.save({
+                groupID: group.groupID,
+                userID: findUser.userID,
+                isManager: false,
+            });
         }
 
         return madeIn;
@@ -178,43 +179,43 @@ export class ChatService {
         const { userID } = await this.userService.validateAccess(accesstoken);
     
         const thisQuery = await this.groupEntity
-          .createQueryBuilder('qb')
-          .select('MAX(chat.chatID) AS chatID')
-          .from(Chatting, 'chat')
-          .addFrom(Group, 'group')
-          .where('group.groupID = chat.groupID')
-          .groupBy('group.groupID')
-          .getRawMany();
+            .createQueryBuilder('qb')
+            .select('MAX(chat.chatID) AS chatID')
+            .from(Chatting, 'chat')
+            .addFrom(Group, 'group')
+            .where('group.groupID = chat.groupID')
+            .groupBy('group.groupID')
+            .getRawMany();
     
         const arr: number[] = [];
     
         for (let i = 0; i < thisQuery.length; i++) {
-          arr.push(thisQuery[i].chatID);
+            arr.push(thisQuery[i].chatID);
         }
     
         const thisList = await this.groupEntity
-          .createQueryBuilder('qb')
-          .leftJoin(Chatting, 'chat', 'chat.groupID = qb.groupID')
-          .leftJoin(
-            GroupMapping,
-            'map',
-            'map.groupID = qb.groupID',
-          )
-          .select([
-            'qb.groupID as groupID',
-            'qb.name as name',
-            'qb.profile AS profile',
-            'chat.body AS body',
-            'chat.isAnnounce AS isAnnounce',
-            'map.userID AS userID',
-            'chat.chatID AS chatID',
-          ])
-          .where('chat.chatID IN (:aarr)', { aarr: arr})
-          .andWhere('map.userID = :userID', { userID })
-          .getRawMany();
+            .createQueryBuilder('qb')
+            .leftJoin(Chatting, 'chat', 'chat.groupID = qb.groupID')
+            .leftJoin(
+                GroupMapping,
+                'map',
+                'map.groupID = qb.groupID',
+            )
+            .select([
+                'qb.groupID as groupID',
+                'qb.name as name',
+                'qb.profile AS profile',
+                'chat.body AS body',
+                'chat.isAnnounce AS isAnnounce',
+                'map.userID AS userID',
+                'chat.chatID AS chatID',
+            ])
+            .where('chat.chatID IN (:aarr)', { aarr: arr })
+            .andWhere('map.userID = :userID', { userID })
+            .getRawMany();
     
         return thisList;
-      }
+    }
 
     async inviteMember(accesstoken: string, inviteMemberDto: InviteMemberDto) {
         // JWT 유효성 검사 & userID 추출
@@ -225,33 +226,33 @@ export class ChatService {
 
         // 채팅방 존재 여부 확인
         const findGroup = await this.groupMappingEntity.findOneBy({
-        groupID,
-        userID,
+            groupID,
+            userID,
         });
         if (!findGroup) throw new NotFoundException();
 
         for (let i = 0; i < newUser.length; i++) {
-        // 초대 멤버 존재 여부 확인
-        const findUser = await this.userEntity.findOneBy({ userID: newUser[i] });
-        if (!findUser) throw new NotFoundException();
+            // 초대 멤버 존재 여부 확인
+            const findUser = await this.userEntity.findOneBy({ userID: newUser[i] });
+            if (!findUser) throw new NotFoundException();
 
-        // 초대 멤버 채팅방 존재 여부 확인
-        const existUser = await this.groupMappingEntity.findOneBy({
-            groupID: findGroup.groupID,
-            userID: findUser.userID,
-        });
-        if (existUser) throw new ConflictException('이미 채팅방에 존재하는 멤버');
+            // 초대 멤버 채팅방 존재 여부 확인
+            const existUser = await this.groupMappingEntity.findOneBy({
+                groupID: findGroup.groupID,
+                userID: findUser.userID,
+            });
+            if (existUser) throw new ConflictException('이미 채팅방에 존재하는 멤버');
 
-        await this.groupMappingEntity.save({
-            groupID: findGroup.groupID,
-            userID: findUser.userID,
-            isManager: false,
-        });
+            await this.groupMappingEntity.save({
+                groupID: findGroup.groupID,
+                userID: findUser.userID,
+                isManager: false,
+            });
         }
 
         return await this.groupMappingEntity.find({
-        where: { groupID: findGroup.groupID },
-        select: ['groupID', 'userID', 'isManager'],
+            where: { groupID: findGroup.groupID },
+            select: ['groupID', 'userID', 'isManager'],
         });
     }
 
@@ -261,35 +262,35 @@ export class ChatService {
 
         // 채팅방 존재 & 참여 여부 확인
         const thisGroup = await this.groupMappingEntity.findOneBy({
-        userID,
-        groupID,
+            userID,
+            groupID,
         });
         if (!thisGroup)
-        throw new NotFoundException('참여하고 있지 않거나 존재하지 않는 채팅방');
+            throw new NotFoundException('참여하고 있지 않거나 존재하지 않는 채팅방');
 
         // 해당 유저가 나가면 채팅방에 남은 멤버가 1명일 때
         const count = await this.groupMappingEntity.countBy({ groupID });
         if (count === 2) {
-        // 채팅방 삭제
-        await this.groupMappingEntity.delete({ groupID });
-        return await this.groupEntity.delete({ groupID });
+            // 채팅방 삭제
+            await this.groupMappingEntity.delete({ groupID });
+            return await this.groupEntity.delete({ groupID });
         }
 
         // 관리자일 때
         if (thisGroup.isManager) {
-        // 해당 유저가 나가면 관리자가 없을 때 (채팅방에 남은 멤버가 3명 이상일 때 = 단체 채팅방일 때)
-        const countManager = await this.groupMappingEntity.countBy({
-            groupID,
-            isManager: true,
-        });
-        if (countManager === 1)
-            throw new ConflictException('새로운 관리자를 추가해야 나갈 수 있음.');
+            // 해당 유저가 나가면 관리자가 없을 때 (채팅방에 남은 멤버가 3명 이상일 때 = 단체 채팅방일 때)
+            const countManager = await this.groupMappingEntity.countBy({
+                groupID,
+                isManager: true,
+            });
+            if (countManager === 1)
+                throw new ConflictException('새로운 관리자를 추가해야 나갈 수 있음.');
         }
 
         // 채팅방에서 멤버 삭제
         return await this.groupMappingEntity.delete({
-        userID,
-        groupID,
+            userID,
+            groupID,
         });
     }
 
@@ -299,20 +300,20 @@ export class ChatService {
 
         // 존재 & 권한 여부
         const thisGroup = await this.groupMappingEntity.findOneBy({
-        groupID,
-        userID,
+            groupID,
+            userID,
         });
         const thisUser = await this.groupMappingEntity.findOneBy({
-        groupID,
-        userID: memberID,
+            groupID,
+            userID: memberID,
         });
         if (!thisGroup || !thisUser)
-        throw new NotFoundException('존재 & 참여하지 않음');
+            throw new NotFoundException('존재 & 참여하지 않음');
         if (!thisGroup.isManager) throw new ForbiddenException('권한 없음');
 
         //채팅인원 수가 2명일 때도 포함
         if (thisUser.isManager)
-        throw new ConflictException('관리자를 강제퇴장시킬 수 없음');
+            throw new ConflictException('관리자를 강제퇴장시킬 수 없음');
 
         return await this.groupMappingEntity.delete({ groupID, userID: memberID });
     }
@@ -327,23 +328,23 @@ export class ChatService {
 
         // 그룹 소속 여부 확인
         const thisGroupMapping = await this.groupMappingEntity.findOneBy({
-        groupID,
-        userID,
+            groupID,
+            userID,
         });
         if (!thisGroupMapping) throw new ForbiddenException();
 
         // 채팅방에 속한 유저 정보와 관리자 확인
         const count = await this.groupMappingEntity
-        .createQueryBuilder('qb')
-        .innerJoin('qb.user', 'user')
-        .select(['qb.isManager', 'identify', 'name', 'profile'])
-        .where('qb.groupID = :groupID', { groupID })
-        .orderBy('isManager', 'DESC')
-        .getRawMany();
+            .createQueryBuilder('qb')
+            .innerJoin('qb.user', 'user')
+            .select(['qb.isManager', 'identify', 'name', 'profile'])
+            .where('qb.groupID = :groupID', { groupID })
+            .orderBy('isManager', 'DESC')
+            .getRawMany();
 
         return {
-        thisGroup,
-        member: count,
+            thisGroup,
+            member: count,
         };
     }
 
@@ -355,25 +356,25 @@ export class ChatService {
         if (!thisGroup) throw new NotFoundException();
 
         const thisGroupMapping = await this.groupMappingEntity.findOneBy({
-        userID,
-        groupID,
+            userID,
+            groupID,
         });
         if (!thisGroupMapping || !thisGroupMapping.isManager)
-        throw new ForbiddenException();
+            throw new ForbiddenException();
 
         const name = groupDto.groupName ? groupDto.groupName : thisGroup.name;
         const profile = groupDto.groupProfile
-        ? groupDto.groupProfile
-        : thisGroup.profile;
+            ? groupDto.groupProfile
+            : thisGroup.profile;
 
         await this.groupEntity.update(
-        {
-            groupID,
-        },
-        {
-            name,
-            profile,
-        },
+            {
+                groupID,
+            },
+            {
+                name,
+                profile,
+            },
         );
 
         return await this.groupEntity.findOneBy({ groupID });
@@ -387,12 +388,12 @@ export class ChatService {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         const thisUser = await this.groupMappingEntity.findOneBy({
-        userID,
-        groupID,
+            userID,
+            groupID,
         });
         const newManager = await this.groupMappingEntity.findOneBy({
-        userID: newManagerID,
-        groupID,
+            userID: newManagerID,
+            groupID,
         });
 
         if (!thisUser || !newManager) throw new NotFoundException();
@@ -419,38 +420,38 @@ export class ChatService {
 
         // 채팅방 존재 & 참여 여부 확인, 권한 확인
         const thisGroup = await this.groupMappingEntity.findOneBy({
-        groupID,
-        userID,
+            groupID,
+            userID,
         });
         const thisUser = await this.groupMappingEntity.findOneBy({
-        groupID,
-        userID: managerID,
+            groupID,
+            userID: managerID,
         });
         if (!thisGroup || !thisUser) throw new NotFoundException();
         if (!thisGroup.isManager)
-        throw new ForbiddenException('관리자 해제 권한 없음');
+            throw new ForbiddenException('관리자 해제 권한 없음');
         if (!thisUser.isManager) throw new ConflictException('이미 관리자가 아님');
 
         const countManager = await this.groupMappingEntity.countBy({
-        groupID,
-        isManager: true,
+            groupID,
+            isManager: true,
         });
         const countMember = await this.groupMappingEntity.countBy({ groupID });
 
         // 개인 채팅방일 때
         if (countMember === 2 && countManager === 2)
-        throw new ConflictException('개인 채팅방일 때는 관리자 해제시킬 수 없음');
+            throw new ConflictException('개인 채팅방일 때는 관리자 해제시킬 수 없음');
 
         // 본인의 관리자 권한을 해제할 수 있지만 채팅방엔 한 명 이상의 관리자 필요
         if (countManager === 1)
-        throw new ConflictException('채팅방엔 한 명 이상의 관리자 필요');
+            throw new ConflictException('채팅방엔 한 명 이상의 관리자 필요');
 
         return await this.groupMappingEntity.update(thisUser, {
-        isManager: false,
+            isManager: false,
         });
     }
 
-        async setChatToNotice(accesstoken: string, chatID: number): Promise<object> {
+    async setChatToNotice(accesstoken: string, chatID: number): Promise<object> {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         const thisChat = await this.chattingEntity.findOneBy({ chatID });
@@ -465,27 +466,27 @@ export class ChatService {
         if (thisChat.isNotice) throw new ConflictException();
 
         const thisNotice = await this.chattingEntity.findOneBy({
-        groupID: thisChat.groupID,
-        isNotice: true,
-        });
-        if (thisNotice)
-        await this.chattingEntity.update(
-            {
             groupID: thisChat.groupID,
             isNotice: true,
-            },
-            {
-            isNotice: false,
-            },
-        );
+        });
+        if (thisNotice)
+            await this.chattingEntity.update(
+                {
+                    groupID: thisChat.groupID,
+                    isNotice: true,
+                },
+                {
+                    isNotice: false,
+                },
+            );
 
         await this.chattingEntity.update(
-        {
-            chatID,
-        },
-        {
-            isNotice: true,
-        },
+            {
+                chatID,
+            },
+            {
+                isNotice: true,
+            },
         );
 
         return await this.chattingEntity.findOneBy({ chatID });
@@ -498,7 +499,7 @@ export class ChatService {
         const option = {
             username,
             headers: {
-                'X-GitHub-Api-Version' : '2022-11-28'
+                'X-GitHub-Api-Version': '2022-11-28'
             }
         }
 
@@ -506,7 +507,7 @@ export class ChatService {
 
         const thisArr = [];
         
-        for (let i = 0; i < repo.data.length; i++){
+        for (let i = 0; i < repo.data.length; i++) {
             const thisRepo = repo.data[i];
             thisArr.push({
                 id: thisRepo.id,
@@ -518,4 +519,66 @@ export class ChatService {
 
         return thisArr;
     }
+    
+    async createAnnounce(accesstoken: string, repo: RepoDto): Promise<object> {
+        const { userID } = await this.userService.validateAccess(accesstoken);
+
+        const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            
+        const thisRepo = await octokit.request('GET /repos/{owner}/{repo}', {
+            owner: repo.owner,
+            repo: repo.name,
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        })
+
+        const thisReq = await octokit.request('POST /repos/{owner}/{repo}/hooks', {
+            owner: repo.owner,
+            repo: repo.name,
+            name: 'web',
+            active: true,
+            events: [
+                'push',
+                'pull_request'
+            ],
+            config: {
+                url: `http://dmg-api.soyeon.org/chat/github/${thisRepo.data.id}`,
+                content_type: 'json',
+                insecure_ssl: '0'
+            },
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        })
+
+        return thisReq;
+    }
 }
+
+// {
+//     "type": "Repository",
+//     "id": 12345678,
+//     "name": "web",
+//     "active": true,
+//     "events": [
+//       "push",
+//       "pull_request"
+//     ],
+//     "config": {
+//       "content_type": "json",
+//       "insecure_ssl": "0",
+//       "url": "https://example.com/webhook"
+//     },
+//     "updated_at": "2019-06-03T00:57:16Z",
+//     "created_at": "2019-06-03T00:57:16Z",
+//     "url": "https://api.github.com/repos/octocat/Hello-World/hooks/12345678",
+//     "test_url": "https://api.github.com/repos/octocat/Hello-World/hooks/12345678/test",
+//     "ping_url": "https://api.github.com/repos/octocat/Hello-World/hooks/12345678/pings",
+//     "deliveries_url": "https://api.github.com/repos/octocat/Hello-World/hooks/12345678/deliveries",
+//     "last_response": {
+//       "code": null,
+//       "status": "unused",
+//       "message": null
+//     }
+//   }
