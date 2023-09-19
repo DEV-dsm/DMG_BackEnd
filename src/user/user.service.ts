@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException, UseFilters } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException, UseFilters } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Redis } from 'ioredis';
 import { Repository } from 'typeorm';
@@ -38,6 +38,8 @@ export class UserService {
      */
     async createAcc(userDto: createAccDevDto) {
         const { identify, name, password, email, isStudent, profile, background } = userDto;
+        if (isStudent && (!userDto.number || !userDto.major || !userDto.github)) throw new BadRequestException();
+        else if (!isStudent && (!userDto.location || !userDto.duty || !userDto.subject)) throw new BadRequestException();
 
         // 아이디 중복 확인
         const havingThisUserByID = await this.userEntity.findOneBy({ identify });
