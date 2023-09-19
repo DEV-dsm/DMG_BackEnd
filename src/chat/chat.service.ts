@@ -552,33 +552,35 @@ export class ChatService {
             }
         })
 
+        const thisGroupID = await this.groupMappingEntity.find({
+            where: [{
+                userID,
+                isManager: true,
+            }, {
+                userID: 1,
+                isManager: true
+                }],
+            select: ['groupID']
+        })
+
+        if (!thisGroupID.filter((groupID) => thisGroupID.some((group) => group.groupID === groupID.groupID))) {
+            const group = await this.groupEntity.save({
+                name: 'github',
+            })
+
+            const madeIn = await this.groupMappingEntity.save({
+                groupID: group.groupID,
+                userID,
+                isManager: true,
+            });
+
+            const member = await this.groupMappingEntity.save({
+                groupID: group.groupID,
+                userID: 1,
+                isManager: true,
+            });
+        }
+
         return thisReq;
     }
 }
-
-// {
-//     "type": "Repository",
-//     "id": 12345678,
-//     "name": "web",
-//     "active": true,
-//     "events": [
-//       "push",
-//       "pull_request"
-//     ],
-//     "config": {
-//       "content_type": "json",
-//       "insecure_ssl": "0",
-//       "url": "https://example.com/webhook"
-//     },
-//     "updated_at": "2019-06-03T00:57:16Z",
-//     "created_at": "2019-06-03T00:57:16Z",
-//     "url": "https://api.github.com/repos/octocat/Hello-World/hooks/12345678",
-//     "test_url": "https://api.github.com/repos/octocat/Hello-World/hooks/12345678/test",
-//     "ping_url": "https://api.github.com/repos/octocat/Hello-World/hooks/12345678/pings",
-//     "deliveries_url": "https://api.github.com/repos/octocat/Hello-World/hooks/12345678/deliveries",
-//     "last_response": {
-//       "code": null,
-//       "status": "unused",
-//       "message": null
-//     }
-//   }
