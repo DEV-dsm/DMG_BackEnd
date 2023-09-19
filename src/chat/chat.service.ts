@@ -465,20 +465,15 @@ export class ChatService {
 
         if (thisChat.isNotice) throw new ConflictException();
 
-        const thisNotice = await this.chattingEntity.findOneBy({
-            groupID: thisChat.groupID,
-            isNotice: true,
-        });
-        if (thisNotice)
-            await this.chattingEntity.update(
-                {
-                    groupID: thisChat.groupID,
-                    isNotice: true,
-                },
-                {
-                    isNotice: false,
-                },
-            );
+        await this.chattingEntity.update(
+            {
+                groupID: thisChat.groupID,
+                isNotice: true,
+            },
+            {
+                isNotice: false,
+            }
+        );
 
         await this.chattingEntity.update(
             {
