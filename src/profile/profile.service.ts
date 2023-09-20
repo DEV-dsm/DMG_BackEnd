@@ -87,13 +87,21 @@ export class ProfileService {
         const { userID } = await this.userService.validateAccess(accesstoken);
         
         const thisUser = await this.userEntity.findOneBy({ userID });
+        const thisStudent = await this.studentEntity.findOneBy({ userID });
         
         if(!thisUser.isStudent) throw new ConflictException('이 API는 학생 전용입니다.')
 
-        const { identify, name, email, major, github, profile, background, number } = studentProfileDto;
+        const identify = studentProfileDto.identify ?? thisUser.identify;
+        const name = studentProfileDto.name ?? thisUser.name;
+        const email = studentProfileDto.email ?? thisUser.email;
+        const profile = studentProfileDto.profile ?? thisUser.profile;
+        const background = studentProfileDto.background ?? thisUser.background;
+        const number = studentProfileDto.number ?? thisStudent.number;
+        const github = studentProfileDto.github ?? thisStudent.github;
+        const major = studentProfileDto.major ?? thisStudent.major;
 
-        if (await this.userEntity.findOneBy({ identify })) throw new ConflictException('아이디 중복');
-        if (await this.userEntity.findOneBy({ email })) throw new ConflictException('이메일 중복');
+        if (await this.userEntity.findOneBy({ identify }) && (identify != thisUser.identify)) throw new ConflictException('아이디 중복');
+        if (await this.userEntity.findOneBy({ email }) && (email != thisUser.email)) throw new ConflictException('이메일 중복');
 
         const updatedUser = await this.userEntity.update({
             userID

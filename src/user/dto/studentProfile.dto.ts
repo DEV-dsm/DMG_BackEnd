@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class StudentProfileDto {
     @ApiProperty({
@@ -7,6 +7,7 @@ export class StudentProfileDto {
         description: "커스텀 아이디",
     })
     @IsString()
+    @IsOptional()
     identify: string;
 
     @ApiProperty({
@@ -14,6 +15,7 @@ export class StudentProfileDto {
         description: "이름"
     })
     @IsString()
+    @IsOptional()
     name: string;
 
     @ApiProperty({
@@ -21,6 +23,7 @@ export class StudentProfileDto {
         description: "이메일"
     })
     @IsString()
+    @IsOptional()
     email: string;
 
     @ApiProperty({
@@ -28,6 +31,7 @@ export class StudentProfileDto {
         description: "전공"
     })
     @IsString()
+    @IsOptional()
     major: string;
 
     @ApiProperty({
@@ -35,6 +39,7 @@ export class StudentProfileDto {
         description: "깃허브 아이디"
     })
     @IsString()
+    @IsOptional()
     github: string;
 
     @ApiProperty({
@@ -42,6 +47,7 @@ export class StudentProfileDto {
         description: "학번"
     })
     @IsString()
+    @IsOptional()
     number: string;
 
     @ApiProperty({
@@ -49,6 +55,7 @@ export class StudentProfileDto {
         description: "프로필사진 파일 경로"
     })
     @IsString()
+    @IsOptional()
     profile: string;
 
     @ApiProperty({
@@ -56,5 +63,6 @@ export class StudentProfileDto {
         description: "배경사진 파일 경로"
     })
     @IsString()
+    @IsOptional()
     background: string;
 }
