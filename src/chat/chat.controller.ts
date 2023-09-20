@@ -1,11 +1,12 @@
 import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query, UseFilters } from '@nestjs/common';
-import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
 import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { InviteMemberDto } from './dto/inviteMember.dto';
+import { RepoDto } from './dto/repo.dto';
 import { UpdateGroupInfoDto } from './dto/updateGroupInfo.dto';
 
 @ApiTags('/chat')
@@ -429,6 +430,40 @@ export class ChatController {
             statusCode: 200,
             statusMsg: ""
         })
+    }
+
+    @ApiOperation({ summary: "PR 알림 만들기", description: "특정 레포지토리를 선택해 해당 레포의 PR 알림 봇을 만듬" })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiBody({ type: RepoDto })
+    @ApiCreatedResponse({
+        status: 201,
+        description: "웹훅 생성 완료"
+    })
+    @ApiUnauthorizedResponse({
+        status: 401,
+        description: "액세스 토큰 검증 실패"
+    })
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "Forbidden"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "Resources not found"
+    })
+    @ApiUnprocessableEntityResponse({
+        status: 422,
+        description: "Validation failed, or the endpoint has been spammed."
+    })
+    @Post('github')
+    async createAnnounce(@Headers('authorization') accesstoken: string, @Body() repo: RepoDto): Promise<object> {
+        const data = await this.chatService.createAnnounce(accesstoken, repo);
+
+        return {
+            data,
+            statusCode: 201,
+            statusMsg: "웹훅 생성 완료"
+        }
     }
 
     @ApiOperation({ summary: "채팅 조회 API", description: "채팅방의 채팅 조회 API" })
