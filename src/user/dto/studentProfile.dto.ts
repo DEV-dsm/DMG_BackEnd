@@ -8,7 +8,7 @@ export class StudentProfileDto {
     })
     @IsString()
     @IsOptional()
-    identify: string;
+    identify?: string;
 
     @ApiProperty({
         example: "",
@@ -16,7 +16,7 @@ export class StudentProfileDto {
     })
     @IsString()
     @IsOptional()
-    name: string;
+    name?: string;
 
     @ApiProperty({
         example: "",
@@ -24,7 +24,7 @@ export class StudentProfileDto {
     })
     @IsString()
     @IsOptional()
-    email: string;
+    email?: string;
 
     @ApiProperty({
         example: "",
@@ -32,7 +32,7 @@ export class StudentProfileDto {
     })
     @IsString()
     @IsOptional()
-    major: string;
+    major?: string;
 
     @ApiProperty({
         example: "",
@@ -40,7 +40,7 @@ export class StudentProfileDto {
     })
     @IsString()
     @IsOptional()
-    github: string;
+    github?: string;
 
     @ApiProperty({
         example: 1234,
@@ -48,7 +48,7 @@ export class StudentProfileDto {
     })
     @IsString()
     @IsOptional()
-    number: string;
+    number?: string;
 
     @ApiProperty({
         example: "",
@@ -56,7 +56,7 @@ export class StudentProfileDto {
     })
     @IsString()
     @IsOptional()
-    profile: string;
+    profile?: string;
 
     @ApiProperty({
         example: "",
@@ -64,5 +64,5 @@ export class StudentProfileDto {
     })
     @IsString()
     @IsOptional()
-    background: string;
+    background?: string;
 }
