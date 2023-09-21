@@ -14,6 +14,7 @@ import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { InviteMemberDto } from './dto/inviteMember.dto';
 import { UpdateGroupInfoDto } from './dto/updateGroupInfo.dto';
+import { userPayloadDto } from 'src/user/dto/userPayload.dto';
 import { Chatting } from './entity/chatting.entity';
 import { Group } from './entity/group.entity';
 import { GroupMapping } from './entity/groupMapping.entity';
@@ -519,14 +520,6 @@ export class ChatService {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-            
-        const thisRepo = await octokit.request('GET /repos/{owner}/{repo}', {
-            owner: repo.owner,
-            repo: repo.name,
-            headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-            }
-        })
 
         const thisReq = await octokit.request('POST /repos/{owner}/{repo}/hooks', {
             owner: repo.owner,
@@ -535,10 +528,13 @@ export class ChatService {
             active: true,
             events: [
                 'push',
-                'pull_request'
+                'pull_request',
+                'pull_request_review',
+                'pull_request_review_comment',
+                'pull_request_review_thread',
             ],
             config: {
-                url: `http://dmg-api.soyeon.org/chat/github/${thisRepo.data.id}`,
+                url: `http://dmg-api.soyeon.org/chat/github/${repo.owner}/${repo.name}/${userID}`,
                 content_type: 'json',
                 insecure_ssl: '0'
             },
@@ -563,13 +559,13 @@ export class ChatService {
                 name: 'github',
             })
 
-            const madeIn = await this.groupMappingEntity.save({
+            await this.groupMappingEntity.save({
                 groupID: group.groupID,
                 userID,
                 isManager: true,
             });
 
-            const member = await this.groupMappingEntity.save({
+            await this.groupMappingEntity.save({
                 groupID: group.groupID,
                 userID: 1,
                 isManager: true,
@@ -577,5 +573,32 @@ export class ChatService {
         }
 
         return thisReq;
+    }
+
+    async githubPR(owner: string, repo: string, userID: number): Promise<object> {
+        const thisGroupID = await this.groupMappingEntity.findOne({
+            where: [{
+                userID,
+                isManager: true,
+            }, {
+                userID: 1,
+                isManager: true
+                }],
+        })
+
+        const userDto: userPayloadDto = {
+            userID: 1,
+            identify: 'github'
+        }
+        const messageDto: CreateMessageDto = {
+            groupID: thisGroupID.groupID,
+            body: `${repo} 레포지토리에 업데이트가 있습니다 : https://github.com/${owner}/${repo}/pulls`
+        }
+
+        const accesstoken = await this.userService.generateAccess(userDto);
+
+        await this.createMessage(accesstoken, messageDto);
+
+        return messageDto;
     }
 }

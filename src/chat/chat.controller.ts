@@ -466,6 +466,23 @@ export class ChatController {
         }
     }
 
+    @ApiOperation({ summary: "웹훅 이벤트 발생 시 처리 API", description: "웹훅 이벤트 발생 시 해당 이벤트에 대해 처리" })
+    @ApiParam({ name: "repoID", type: "number" })
+    @ApiOkResponse({
+        status: 200,
+        description: "처리 성공"
+    })
+    @Post('github/:owner/:repo/:userID')
+    async githubPR(@Param('owner') owner: string, @Param('repo') repo: string, @Param('userID') userID: number): Promise<object> {
+        const data = await this.chatService.githubPR(owner, repo, userID);
+
+        return {
+            data,
+            statusCode: 201,
+            statusMsg: "처리 성공"
+        }
+    }
+
     @ApiOperation({ summary: "채팅 조회 API", description: "채팅방의 채팅 조회 API" })
     @ApiHeader({ name: "authorization", required: true })
     @ApiParam({ name: "groupID", type: "number" })
