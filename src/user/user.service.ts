@@ -200,7 +200,10 @@ export class UserService {
         // 검증되지 않은 리프레시 토큰
         if (!refresh) throw new UnauthorizedException("재로그인 필요");
 
-        const accessToken = await this.generateAccess(refresh);
+        const accessToken = await this.generateAccess({
+            userID: refresh.userID,
+            identify: refresh.identify,
+        });
 
         return {
             accessToken : accessToken,
