@@ -203,7 +203,7 @@ export class ProfileService {
      * 
      * 유저 검색
      */
-     async searchProfileList(accesstoken: string, isStudent: boolean, searchProfileDto: searchProfileDto): Promise<object> {
+    async searchProfileList(accesstoken: string, isStudent: boolean, searchProfileDto: searchProfileDto): Promise<object> {
         const { standard, keyword } = searchProfileDto;
         if(standard != 'number' && standard != 'name') throw new BadRequestException('잘못된 요청');
         
