@@ -213,7 +213,7 @@ export class UserController {
         summary: "리프레시 토큰 검증",
         description: "액세스토큰이 만료된 경우 리프레시 토큰으로 요청 보내 재발급"
     })
-    @ApiHeader({ name: 'refreshtoken', required: true })
+    @ApiHeader({ name: 'authorization', required: true })
     @ApiOkResponse({
         status: 200,
         description: "리프레시 토큰으로 액세스 토큰 재발급"
