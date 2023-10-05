@@ -603,4 +603,8 @@ export class ChatService {
 
         return messageDto;
     }
+
+    async test() {
+        console.log("for pr bot test")
+    }
 }
