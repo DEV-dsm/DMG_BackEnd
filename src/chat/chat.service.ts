@@ -586,8 +586,10 @@ export class ChatService {
                 }],
         })
 
+        const prBotAccount = await this.userEntity.findOneBy({ identify: 'github' });
+
         const userDto: userPayloadDto = {
-            userID: 1,
+            userID: prBotAccount.userID,
             identify: 'github'
         }
         const messageDto: CreateMessageDto = {
