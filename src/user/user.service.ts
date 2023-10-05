@@ -51,6 +51,7 @@ export class UserService {
 
         const hashedPW = await bcrypt.hash(password, 10);
 
+        // 학번 중복 확인
         if (isStudent) if (await this.studentEntity.findOneBy({ number: userDto.number })) throw new ConflictException();
 
         await this.userEntity.save({
@@ -70,33 +71,25 @@ export class UserService {
         if (isStudent) {
             const { major, github, number } = userDto;
 
-            const student = await this.studentEntity.save({
+            return await this.studentEntity.save({
                 userID: findUser.userID,
                 user: findUser,
                 major,
                 github,
                 number
             })
-
-            return {
-                student
-            }
         }
         
         // 교사일 경우
         const { location, subject, duty } = userDto;
 
-        const teacher = await this.teacherEntity.save({
+        return await this.teacherEntity.save({
             userID: findUser.userID,
             user: findUser,
             location,
             subject,
             duty
         })
-
-        return {
-            teacher
-        }
     }
 
     /**
@@ -146,7 +139,7 @@ export class UserService {
             secret: process.env.JWT_SECRET_ACCESS
         })
 
-        return `Bearer ${accessToken}`;
+        return accessToken;
     }
 
     /**
@@ -163,7 +156,7 @@ export class UserService {
             expiresIn: '48h'
         })
 
-        return `Bearer ${refreshToken}`;
+        return refreshToken;
     }
 
     /**
