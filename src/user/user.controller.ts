@@ -31,10 +31,9 @@ export class UserController {
     })
     @Post('createAcc')
     async createUserAcc(@Body() userAccDto: createAccDevDto) {
-        const data = await this.userService.createAcc(userAccDto);
+        await this.userService.createAcc(userAccDto);
 
         return Object.assign({
-            data,
             statusCode: 201,
             statusMsg: "계정 생성 완료"
         })
