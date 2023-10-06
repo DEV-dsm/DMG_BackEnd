@@ -576,6 +576,7 @@ export class ChatService {
     }
 
     async githubPR(owner: string, repo: string, userID: number): Promise<object> {
+        console.log("githubPR")
         const prBotAccount = await this.userEntity.findOneBy({ identify: 'github' });
         const thisUser = await this.userEntity.findOneBy({ userID });
 
