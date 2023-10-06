@@ -634,4 +634,6 @@ export class ChatService {
 
         return messageDto;
     }
+
+    async testing(){}
 }
