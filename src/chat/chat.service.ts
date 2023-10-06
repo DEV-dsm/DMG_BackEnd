@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ChatGateway } from './chat.gateway';
 import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
 import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
@@ -576,24 +576,53 @@ export class ChatService {
     }
 
     async githubPR(owner: string, repo: string, userID: number): Promise<object> {
-        const thisGroupID = await this.groupMappingEntity.findOne({
-            where: [{
+        const prBotAccount = await this.userEntity.findOneBy({ identify: 'github' });
+        const thisUser = await this.userEntity.findOneBy({ userID });
+
+        const userGroup = await this.groupMappingEntity.find({
+            where: {
                 userID,
-                isManager: true,
-            }, {
-                userID: 1,
                 isManager: true
-                }],
+            },
+            select: ['groupID']
+        })
+        const list = []
+        for (let a = 0; a <= userGroup.length; a++) {
+            list.push(userGroup[a].groupID)
+        }
+
+        const githubGroup = await this.groupMappingEntity.findOne({
+            where: {
+                groupID: In([list])
+            }
         })
 
-        const prBotAccount = await this.userEntity.findOneBy({ identify: 'github' });
+        if (!githubGroup) {
+            await this.groupEntity.save({
+                name: `${thisUser.name}, github`
+            })
+
+            const thisGroup = await this.groupEntity.findOneBy({ name: `${thisUser.name}, github` });
+
+            await this.groupMappingEntity.save({
+                userID,
+                groupID: thisGroup.groupID,
+                isManager: true,
+            })
+
+            await this.groupMappingEntity.save({
+                userID: prBotAccount.userID,
+                groupID: thisGroup.groupID,
+                isManager: true
+            })
+        }
 
         const userDto: userPayloadDto = {
             userID: prBotAccount.userID,
             identify: 'github'
         }
         const messageDto: CreateMessageDto = {
-            groupID: thisGroupID.groupID,
+            groupID: githubGroup.groupID,
             body: `${repo} 레포지토리에 업데이트가 있습니다 : https://github.com/${owner}/${repo}/pulls`
         }
 
