@@ -518,6 +518,7 @@ export class ChatService {
     
     async createAnnounce(accesstoken: string, repo: RepoDto): Promise<object> {
         const { userID } = await this.userService.validateAccess(accesstoken);
+        const github = await this.userEntity.findOneBy({ name: 'github' });
 
         const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
@@ -548,7 +549,7 @@ export class ChatService {
                 userID,
                 isManager: true,
             }, {
-                userID: 1,
+                userID: github.userID,
                 isManager: true
                 }],
             select: ['groupID']
@@ -567,7 +568,7 @@ export class ChatService {
 
             await this.groupMappingEntity.save({
                 groupID: group.groupID,
-                userID: 1,
+                userID: github.userID,
                 isManager: true,
             });
         }
