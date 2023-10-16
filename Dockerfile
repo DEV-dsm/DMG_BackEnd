@@ -32,7 +32,7 @@ ENV NODE_ENV=${NODE_ENV}
 
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
-COPY --chown=node:node ./.production.env /usr/src/app/.production.env
+COPY --chown=node:node .production.env /usr/src/app/.production.env
 
 EXPOSE 8080
 CMD ["node", "dist/main.js"]
