@@ -40,6 +40,7 @@ jobs:
           REPOSITORY: dmg-api
           IMAGE_TAG: latest
         run: |
+          aws ecr get-login-password --region ${{AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin $REGISTRY/$REPOSITORY
           sudo docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
