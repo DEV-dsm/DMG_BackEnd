@@ -39,19 +39,18 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: dmg-api
           IMAGE_TAG: latest
-          REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          LOGIN: ${{ secrets.ECR_LOGIN }}
         run: |
-          aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $LOGIN
-          sudo docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: executing remote ssh commands using ssh key
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PEM_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          run: |
-            ssh -i ${SSH_PEM_KEY} -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}
+      # - name: executing remote ssh commands using ssh key
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USERNAME }}
+      #     key: ${{ secrets.SSH_PEM_KEY }}
+      #     port: ${{ secrets.SSH_PORT }}
+      #     run: |
+      #       ssh -i ${SSH_PEM_KEY} -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}
+
+
+# sudo docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
