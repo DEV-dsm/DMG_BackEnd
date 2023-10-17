@@ -41,7 +41,7 @@ jobs:
           IMAGE_TAG: latest
         run: |
           sudo docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
