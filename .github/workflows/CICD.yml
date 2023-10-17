@@ -50,7 +50,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PEM_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: |
-            docker compose --env-file ../.production.env
-          # run: |
-          #   ssh -i ${SSH_PEM_KEY} -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}
+          run: |
+            ssh -i ${SSH_PEM_KEY} -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}
