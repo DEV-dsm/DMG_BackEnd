@@ -41,6 +41,7 @@ jobs:
           IMAGE_TAG: latest
         run: |
           docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
 
       # - name: executing remote ssh commands using ssh key
       #   uses: appleboy/ssh-action@master
@@ -51,6 +52,3 @@ jobs:
       #     port: ${{ secrets.SSH_PORT }}
       #     run: |
       #       ssh -i ${SSH_PEM_KEY} -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}
-
-
-# sudo docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
