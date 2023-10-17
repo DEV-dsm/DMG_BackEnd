@@ -40,7 +40,7 @@ jobs:
           REPOSITORY: dmg-api
           IMAGE_TAG: latest
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          sudo docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: executing remote ssh commands using ssh key
@@ -50,5 +50,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PEM_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          run: |
-            ssh -i ${SSH_PEM_KEY} -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}
+          script: |
+            docker compose --env-file ../.production.env
+          # run: |
+          #   ssh -i ${SSH_PEM_KEY} -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}
