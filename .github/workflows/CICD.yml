@@ -48,6 +48,6 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PEM_KEY }}
+          key: ${{ secrets.KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: whoami
