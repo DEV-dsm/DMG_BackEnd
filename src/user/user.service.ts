@@ -16,6 +16,7 @@ import { QuestionDto } from './dto/question.dto';
 import { Question } from './entities/question.entity';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { IncomingWebhook } from '@slack/webhook';
+import { FindPWDto } from './dto/findPW.dto';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -242,7 +243,8 @@ export class UserService {
      * 
      * 비밀번호 찾기
      */
-    async findPW(email: string, newPassword: string): Promise<object> {
+    async findPW(findPWDto: FindPWDto): Promise<object> {
+        const { email, newPassword } = findPWDto;
         const { userID } = await this.userEntity.findOneBy({ email });
 
         if (!userID) throw new NotFoundException();
@@ -260,71 +262,71 @@ export class UserService {
         return updatedUser;
     }
 
-/**
-     * 
-     * @param accesstoken 
-     * @param question 
-     * @returns thisQuestion
-     * 
-     * 문의하기
-     */
-async question(accesstoken: string, question: QuestionDto): Promise<object> {
-    const webhook = new IncomingWebhook(process.env.CHANNEL_URL); // 웹훅 생성
+    /**
+         * 
+         * @param accesstoken 
+         * @param question 
+         * @returns thisQuestion
+         * 
+         * 문의하기
+         */
+    async question(accesstoken: string, question: QuestionDto): Promise<object> {
+        const webhook = new IncomingWebhook(process.env.SLACK); // 웹훅 생성
 
-    const { userID } = await this.validateAccess(accesstoken); // 액세스 토큰 검증
+        const { userID } = await this.validateAccess(accesstoken); // 액세스 토큰 검증
 
-    const thisUser = await this.userEntity.findOneBy({ userID }); // 유저 찾기
+        const thisUser = await this.userEntity.findOneBy({ userID }); // 유저 찾기
 
-    if (!thisUser) throw new NotFoundException(); // 없으면 NotFoundException
+        if (!thisUser) throw new NotFoundException(); // 없으면 NotFoundException
 
-    const thisQuestion = await this.questionEntity.save({
-        userID,
-        user: thisUser,
-        title: question.title,
-        content: question.content
-    })
+        const thisQuestion = await this.questionEntity.save({
+            userID,
+            user: thisUser,
+            title: question.title,
+            content: question.content
+        })
 
-    const payload = {
-        "attachments": [
-            {
-                "blocks": [
-                    {
-                        "type": "header",
-                        "text": {
-                            "type": "plain_text",
-                            "text": question.title
-                        }
-                    },
-                    {
-                        "type": "divider"
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": question.content
+        const payload = {
+            "attachments": [
+                {
+                    "blocks": [
+                        {
+                            "type": "header",
+                            "text": {
+                                "type": "plain_text",
+                                "text": question.title
+                            }
                         },
-                    },
-                    {
-                        "type": "divider"
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": `*date*:${Date.now().toString()}\n*userID*: ${userID}\n*userName*: ${thisUser.name}\n*userEmail*: ${thisUser.email}`
+                        {
+                            "type": "divider"
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": question.content
+                            },
+                        },
+                        {
+                            "type": "divider"
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": `*date*:${Date.now().toString()}\n*userID*: ${userID}\n*userName*: ${thisUser.name}\n*userEmail*: ${thisUser.email}`
+                            }
+                        },
+                        {
+                            "type": "divider"
                         }
-                    },
-                    {
-                        "type": "divider"
-                    }
-                ]
-            }
-        ]
+                    ]
+                }
+            ]
+        }
+
+        await webhook.send(payload);
+
+        return thisQuestion;
     }
-
-    await webhook.send(payload);
-
-    return thisQuestion;
-}
 }

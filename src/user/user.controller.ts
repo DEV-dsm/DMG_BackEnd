@@ -3,6 +3,7 @@ import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiHeader, ApiNotFoun
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { MailService } from 'src/mail/mail.service';
 import { createAccDevDto } from './dto/createAcc.dev.dto';
+import { FindPWDto } from './dto/findPW.dto';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { passwordDto } from './dto/password.dto';
 import { QuestionDto } from './dto/question.dto';
@@ -171,8 +172,8 @@ export class UserController {
         description: "비밀번호 규칙 미반영"
     })
     @Patch('findPW')
-    async findPW(@Body('email') email: string, @Body('newPassword') newPassword: string): Promise<object> {
-        const data = await this.userService.findPW(email, newPassword);
+    async findPW(@Body() findPWDto: FindPWDto): Promise<object> {
+        const data = await this.userService.findPW(findPWDto);
 
         return Object.assign({
             data,
