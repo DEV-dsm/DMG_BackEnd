@@ -2,8 +2,7 @@ import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query, UseF
 import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { ChatService } from './chat.service';
-import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
-import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
+import { CreateGroupDto } from './dto/createGroup.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { InviteMemberDto } from './dto/inviteMember.dto';
 import { RepoDto } from './dto/repo.dto';
@@ -49,12 +48,12 @@ export class ChatController {
         })
     }
 
-    @ApiOperation({ summary: "개인 채팅방 만들기 API", description: "개인 채팅방 만들기" })
-    @ApiHeader({ name: "authorization", required: true})
-    @ApiBody({ type: CreateGroupPersonDto })
+    @ApiOperation({ summary: "새로운 채팅방 생성 API", description: "새로운 채팅방 생성" })
+    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiBody({ type: CreateGroupDto })
     @ApiCreatedResponse({
         status: 201,
-        description: "개인 채팅방 생성 완료"
+        description: "새로운 채팅방 생성 완료"
     })
     @ApiUnauthorizedResponse({
         status: 401,
@@ -66,16 +65,16 @@ export class ChatController {
     })
     @ApiConflictResponse({
         status: 409,
-        description: "초대하는 사람은 다른 사람이어야 함"
+        description: "자기 자신 또는 같은 사람이 여럿 포함됨"
     })
-    @Post('newPerson')
-    async createGroupPerson(@Headers('authorization') accesstoken: string, @Body() createGroupDto: CreateGroupPersonDto) {
-        const data = await this.chatService.createGroupPerson(accesstoken, createGroupDto);
+    @Post('newGroup')
+    async createGroup(@Headers('authorization') accesstoken: string, @Body() createGroupDto: CreateGroupDto) {
+        const data = await this.chatService.createGroup(accesstoken, createGroupDto);
 
         return Object.assign({
             data,
             statusCode: 201,
-            statusMsg: "개인 채팅방이 생성되었습니다."
+            statusMsg: "새로운 채팅방이 생성되었습니다."
         })
     }
 
@@ -101,36 +100,6 @@ export class ChatController {
             data,
             statusCode: 200,
             statusMsg: "OK"
-        })
-    }
-
-    @ApiOperation({ summary: "단체 채팅방 만들기 API", description: "단체 채팅방 만들기" })
-    @ApiHeader({ name: "authorization", required: true })
-    @ApiBody({ type: CreateGroupPeopleDto })
-    @ApiCreatedResponse({
-        status: 201,
-        description: "단체 채팅방 생성 완료"
-    })
-    @ApiUnauthorizedResponse({
-        status: 401,
-        description: "액세스 토큰 검증 실패"
-    })
-    @ApiNotFoundResponse({
-        status: 404,
-        description: "존재하지 않는 사람을 초대함"
-    })
-    @ApiConflictResponse({
-        status: 409,
-        description: "자기 자신이 포함되거나 같은 사람이 여럿 포함됨"
-    })
-    @Post('newPeople')
-    async createGroupPeople(@Headers('authorization') accesstoken: string, @Body() createGroupDto: CreateGroupPeopleDto) {
-        const data = await this.chatService.createGroupPeople(accesstoken, createGroupDto);
-
-        return Object.assign({
-            data,
-            statusCode: 201,
-            statusMsg: "단체 채팅방이 생성되었습니다."
         })
     }
 

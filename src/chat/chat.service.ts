@@ -9,8 +9,6 @@ import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { In, Repository } from 'typeorm';
 import { ChatGateway } from './chat.gateway';
-import { CreateGroupPeopleDto } from './dto/createGroupPeople.dto';
-import { CreateGroupPersonDto } from './dto/createGroupPerson.dto';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { InviteMemberDto } from './dto/inviteMember.dto';
 import { UpdateGroupInfoDto } from './dto/updateGroupInfo.dto';
@@ -20,6 +18,7 @@ import { Group } from './entity/group.entity';
 import { GroupMapping } from './entity/groupMapping.entity';
 import { Octokit } from 'octokit';
 import { RepoDto } from './dto/repo.dto';
+import { CreateGroupDto } from './dto/createGroup.dto';
 
 // @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -88,92 +87,80 @@ export class ChatService {
         return thisMessages;
     }
 
-    async createGroupPerson(
-        accesstoken: string,
-        createGroupDto: CreateGroupPersonDto,
-    ) {
+    async createGroup(accesstoken: string, createGroupDto: CreateGroupDto) {
         // JWT 유효성 검사 & userID 추출
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         // 파라미터 분리
-        const { name, profile, person } = createGroupDto;
+        const { profile, member } = createGroupDto;
 
-        if (person === userID) throw new ConflictException();
+        // 멤버 이름 반환을 위해 배열 선언
+        let userName = []
 
-        // 상대방 찾기
-        const findUser = await this.userEntity.findOneBy({ userID: person });
+        // userID를 포함하는 경우
+        if (member.includes(userID)) throw new ConflictException('자신을 포함할 수 없음');
 
-        if (!findUser) throw new NotFoundException();
+        // 중복값이 존재하는 경우
+        if (member.length != new Set(member).size) throw new ConflictException('같은 사람이 여럿 포함될 수 없음');
 
-        // 새 채팅방 생성
+        // userName 배열에 관리자 이름 먼저 추가
+        const findCreator = await this.userEntity.findOneBy({ userID });
+        userName.push(findCreator.name)
+
+        // 배열에 멤버 이름 추가
+        for (let i = 0; i < member.length; i++) {
+            const findUserName = await this.userEntity.findOneBy({ userID: member[i] });
+            userName.push(findUserName.name);
+        }
+
         const group = await this.groupEntity.save({
-            name,
-            profile,
+            name: userName.join(", "),
+            profile
         });
 
-        // 개인 채팅방 만든이 추가
-        const madeIn = await this.groupMappingEntity.save({
-            groupID: group.groupID,
-            userID: userID,
-            isManager: true,
-        });
+        if (createGroupDto.name) {
+            const findGroup = await this.groupEntity.findOneBy({
+                groupID: group.groupID
+            });
 
-        // 개인 채팅방 상대방 추가
-        const member = await this.groupMappingEntity.save({
-            groupID: group.groupID,
-            userID: findUser.userID,
-            isManager: true,
-        });
-
-        return {
-            group,
-            madeIn,
-            member,
-        };
-    }
-
-    async createGroupPeople(
-        accesstoken: string,
-        createGroupDto: CreateGroupPeopleDto,
-    ) {
-        // JWT 유효성 검사 & userID 추출
-        const { userID } = await this.userService.validateAccess(accesstoken);
-
-        // 파라미터 분리
-        const { name, profile, people } = createGroupDto;
-
-        if (people.length == 1) throw new ConflictException(); // 사람이 한 명인 경우 (createGroupPerson)
-        if (people.includes(userID)) throw new ConflictException('자신을 포함할 수 없음'); // userID를 포함하는 경우
-        if (people.length != new Set(people).size) throw new ConflictException('같은 사람이 여럿 포함될 수 없음'); // 중복값이 존재하는 경우
-
-        // 새 채팅방 생성
-        const group = await this.groupEntity.save({
-            name,
-            profile,
-        });
-
-        // 단체 채팅방 만든이 추가 및 관리자 할당
-        const madeIn = await this.groupMappingEntity.save({
-            groupID: group.groupID,
-            userID,
-            isManager: true,
-        });
-
-        // 단체 채팅방 멤버 추가
-        for (let i = 0; i < people.length; i++) {
-            // 멤버 찾기
-            const findUser = await this.userEntity.findOneBy({ userID: people[i] });
-
-            if (!findUser) throw new NotFoundException();
-
-            await this.groupMappingEntity.save({
-                groupID: group.groupID,
-                userID: findUser.userID,
-                isManager: false,
+            await this.groupEntity.update(findGroup, {
+                name: createGroupDto.name
             });
         }
 
-        return madeIn;
+        // 단체 채팅방 만든이 추가 및 관리자 할당
+        await this.groupMappingEntity.save({
+            groupID: group.groupID,
+            userID,
+            isManager: true
+        });
+
+        // 1 대 1 채팅일 때 상대방 추가 및 관리자 권한 부여
+        if (member.length === 1) {
+            await this.groupMappingEntity.save({
+                groupID: group.groupID,
+                userID: member[0],
+                isManager: true
+            });
+        } else {
+            for (let i = 0; i < member.length; i++) {
+                // 멤버 찾기
+                const findUser = await this.userEntity.findOneBy({ userID: member[i] });
+                if (!findUser) throw new NotFoundException('존재하지 않는 사람');
+    
+                await this.groupMappingEntity.save({
+                    groupID: group.groupID,
+                    userID: member[i],
+                    isManager: false
+                });
+            }
+        }
+
+        if (createGroupDto.name) {
+            return createGroupDto.name
+        } else {
+            return userName
+        }
     }
 
     async getChatList(accesstoken: string): Promise<object> {
