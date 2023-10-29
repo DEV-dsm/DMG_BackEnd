@@ -503,15 +503,14 @@ export class ChatService {
 
         const thisArr = [];
         
-        for (let i = 0; i < repo.data.length; i++) {
-            const thisRepo = repo.data[i];
+        repo.data.map( x => {
             thisArr.push({
-                id: thisRepo.id,
-                name: thisRepo.name,
-                full_name: thisRepo.full_name,
-                user_login: thisRepo.owner.login
+                id: x.id,
+                name: x.name,
+                full_name: x.full_name,
+                user_login: x.owner.login
             })
-        }
+        })
 
         return thisArr;
     }
