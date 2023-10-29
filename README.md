@@ -14,7 +14,7 @@
 ---
 
 - Backend: Node.js, NestJS, TypeORM, Typescript, Redis, JWT
-- Deploy: Docker, Nginx, AWS EC2, ECR, Github Action
+- Deploy: Docker, Nginx, AWS EC2, ECR, Github Actions
 - DB: MySQL
 
 ### 🧩 Commit Rule
