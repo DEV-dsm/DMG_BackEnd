@@ -1,5 +1,7 @@
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { BadRequestException, ConflictException, Injectable, NotFoundException, UseFilters } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Redis } from 'ioredis';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
 import { searchProfileDto } from 'src/user/dto/searchProfile.dto';
 import { StudentProfileDto } from 'src/user/dto/studentProfile.dto';
@@ -18,6 +20,7 @@ export class ProfileService {
         @InjectRepository(User) private userEntity: Repository<User>,
         @InjectRepository(Student) private studentEntity: Repository<Student>,
         @InjectRepository(Teacher) private teacherEntity: Repository<Teacher>,
+        @InjectRedis() private readonly redis: Redis,
     ) { }
     
     /**
@@ -34,9 +37,12 @@ export class ProfileService {
         const thisUser = await this.userEntity.findOneBy({ userID });
         const thisStudent = await this.studentEntity.findOneBy({ userID });
 
-        if (!thisUser || !thisStudent) throw new NotFoundException('존재하지 않는 유저');
+        let isOnline = 0;
 
-        return Object.assign(thisUser, thisStudent);
+        if (!thisUser || !thisStudent) throw new NotFoundException('존재하지 않는 유저');
+        if(await this.redis.get(`${userID}AccessToken`)) isOnline = 1
+
+        return Object.assign(thisUser, thisStudent, {isOnline});
     }
 
     /**
@@ -47,7 +53,7 @@ export class ProfileService {
      * 학생 리스트 조회
      */
     async getStudentProfileList(accesstoken: string): Promise<object>{
-        const { userID } = await this.userService.validateAccess(accesstoken);
+        await this.userService.validateAccess(accesstoken);
 
         const studentList = await this.userEntity
             .createQueryBuilder('qb')
@@ -168,9 +174,12 @@ export class ProfileService {
         const thisUser = await this.userEntity.findOneBy({ userID });
         const thisTeacher = await this.teacherEntity.findOneBy({ userID });
 
-        if (!thisUser || !thisTeacher) throw new NotFoundException('존재하지 않는 유저');
+        let isOnline = 0;
 
-        return Object.assign(thisUser, thisTeacher);
+        if (!thisUser || !thisTeacher) throw new NotFoundException('존재하지 않는 유저');
+        if(await this.redis.get(`${userID}AccessToken`)) isOnline = 1
+
+        return Object.assign(thisUser, thisTeacher, {isOnline});
     }
 
     /**
