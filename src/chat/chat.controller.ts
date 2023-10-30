@@ -49,7 +49,7 @@ export class ChatController {
     }
 
     @ApiOperation({ summary: "새로운 채팅방 생성 API", description: "새로운 채팅방 생성" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiBody({ type: CreateGroupDto })
     @ApiCreatedResponse({
         status: 201,
@@ -79,7 +79,7 @@ export class ChatController {
     }
 
     @ApiOperation({ summary: "채팅방 리스트 조회하기 API", description: "채팅방 리스트 조회하기" })
-    @ApiHeader({ name: "accesstoken", required: true })
+    @ApiHeader({ name: "authorization", required: true })
     @ApiOkResponse({
         status: 200,
         description: "채팅방 리스트 조회 성공"
