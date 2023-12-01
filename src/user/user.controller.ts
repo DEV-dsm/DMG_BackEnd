@@ -61,7 +61,7 @@ export class UserController {
         return Object.assign({
             data,
             statusCode: 200,
-            statusMsg: "로그인이 완료되었습니다. 아 ssh 미쳤냐"
+            statusMsg: "로그인이 완료되었습니다. 하 제발 부탁할게"
         })
     }
 
