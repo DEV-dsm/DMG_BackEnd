@@ -43,11 +43,14 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: executing remote ssh commands using ssh key
+      - name: executing remote ssh commands using ssh key and docker pull on Amazon EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: whoami
+          script: |
+            docker pull ${{ secrets.ECR_URI }}:latest
+            cd web/
+            docker-compose restart dmg-api
