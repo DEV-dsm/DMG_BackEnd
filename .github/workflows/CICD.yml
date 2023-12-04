@@ -53,5 +53,6 @@ jobs:
           script: |
             aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
             docker pull ${{ secrets.ECR_URI }}:latest
+            cd web/
             docker-compose restart ${{ secrets.SERVER_NAME }}
             docker-compose up -d
