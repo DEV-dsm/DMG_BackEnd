@@ -50,4 +50,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: whoami
+          script: |
+            docker pull ${{ secrets.ECR_URI }}:latest
+            cd web/
+            docker-compose restart ${{ secrets.SERVER_NAME }}
+            docker-compose up -d
