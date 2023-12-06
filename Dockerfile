@@ -26,12 +26,8 @@ RUN npm ci --only=production --force && npm cache clean --force
 FROM node:18-alpine AS deploy
 WORKDIR /usr/src/app
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
-COPY --chown=node:node .${NODE_ENV}.env /usr/src/.${NODE_ENV}.env
 
 EXPOSE 8080
 CMD ["node", "dist/main.js"]
