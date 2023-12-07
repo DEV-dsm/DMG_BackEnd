@@ -36,7 +36,7 @@ export class UserController {
 
         return Object.assign({
             statusCode: 201,
-            statusMsg: "계정 생성 완료됐다 환경변수 잘 들어갔나 test"
+            statusMsg: "계정 생성 완료됐다 와 웹훅 진짜 미쳤냐"
         })
     }
 
