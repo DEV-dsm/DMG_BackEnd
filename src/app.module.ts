@@ -8,6 +8,7 @@ import { ChatModule } from './chat/chat.module';
 import { SlackModule } from 'nestjs-slack-webhook';
 import slackConfig from './config/slack.config';
 import { configDotenv } from 'dotenv';
+import { UploadModule } from './upload/upload.module';
 
 configDotenv()
 
@@ -18,16 +19,16 @@ configDotenv()
 		envFilePath: `${process.cwd()}/.${process.env.NODE_ENV}.env`,
       	cache: true, // 캐싱
       	isGlobal: true, // 전역
-		load: [slackConfig],
+		load: [], // slackConfig
 		}),
-		SlackModule.forRootAsync({
-			imports: [ConfigModule],
-			inject: [ConfigService],
-			useFactory: async (config: ConfigService) => ({
-				url: config.get<string>('SLACK'),
+		// SlackModule.forRootAsync({
+		// 	imports: [ConfigModule],
+		// 	inject: [ConfigService],
+		// 	useFactory: async (config: ConfigService) => ({
+		// 		url: config.get<string>('SLACK'),
 				
-			}),
-		}),
+		// 	}),
+		// }),
 		TypeOrmModule.forRoot({
 			// TypeORM
 			type: 'mysql',
@@ -37,7 +38,7 @@ configDotenv()
 			password: process.env.DB_PASSWORD, // DB 접속 계정의 비밀번호
 			database: process.env.DB_NAME, // DB 테이블 이름
 			entities: [__dirname + '/**/entity/*.js'],
-			synchronize: false, // false로 설정 안 하면 실행할 때마다 DB 날라감
+			synchronize: true, // false로 설정 안 하면 실행할 때마다 DB 날라감
 			logging: false, // 로그찍기
 			migrations: [__dirname + '/**/migrations/*.js'],
 			migrationsTableName: 'migrations',
@@ -56,6 +57,7 @@ configDotenv()
 		UserModule,
 		ProfileModule,
 		ChatModule,
+		UploadModule,
 	],
 	controllers: [],
 	providers: [],
