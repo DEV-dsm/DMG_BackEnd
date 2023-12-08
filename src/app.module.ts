@@ -16,9 +16,9 @@ configDotenv()
 		ConfigModule.forRoot({
     	  // Slack
 		envFilePath: `${process.cwd()}/.${process.env.NODE_ENV}.env`,
-      	cache: true, // 캐싱
-      	isGlobal: true, // 전역
-		load: [], // slackConfig
+      	// cache: true, // 캐싱
+      	// isGlobal: true, // 전역
+		// load: [], // slackConfig
 		}),
 		// SlackModule.forRootAsync({
 		// 	imports: [ConfigModule],
