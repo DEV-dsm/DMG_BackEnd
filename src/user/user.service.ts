@@ -271,63 +271,63 @@ export class UserService {
          * 
          * 문의하기
          */
-    async question(accesstoken: string, question: QuestionDto): Promise<object> {
-        const webhook = new IncomingWebhook(process.env.SLACK); // 웹훅 생성
+    // async question(accesstoken: string, question: QuestionDto): Promise<object> {
+    //     const webhook = new IncomingWebhook(process.env.SLACK); // 웹훅 생성
 
-        const { userID } = await this.validateAccess(accesstoken); // 액세스 토큰 검증
+    //     const { userID } = await this.validateAccess(accesstoken); // 액세스 토큰 검증
 
-        const thisUser = await this.userEntity.findOneBy({ userID }); // 유저 찾기
+    //     const thisUser = await this.userEntity.findOneBy({ userID }); // 유저 찾기
 
-        if (!thisUser) throw new NotFoundException(); // 없으면 NotFoundException
+    //     if (!thisUser) throw new NotFoundException(); // 없으면 NotFoundException
 
-        const thisQuestion = await this.questionEntity.save({
-            userID,
-            user: thisUser,
-            title: question.title,
-            content: question.content
-        })
+    //     const thisQuestion = await this.questionEntity.save({
+    //         userID,
+    //         user: thisUser,
+    //         title: question.title,
+    //         content: question.content
+    //     })
 
-        const payload = {
-            "attachments": [
-                {
-                    "blocks": [
-                        {
-                            "type": "header",
-                            "text": {
-                                "type": "plain_text",
-                                "text": question.title
-                            }
-                        },
-                        {
-                            "type": "divider"
-                        },
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": question.content
-                            },
-                        },
-                        {
-                            "type": "divider"
-                        },
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": `*date*:${Date.now().toString()}\n*userID*: ${userID}\n*userName*: ${thisUser.name}\n*userEmail*: ${thisUser.email}`
-                            }
-                        },
-                        {
-                            "type": "divider"
-                        }
-                    ]
-                }
-            ]
-        }
+    //     const payload = {
+    //         "attachments": [
+    //             {
+    //                 "blocks": [
+    //                     {
+    //                         "type": "header",
+    //                         "text": {
+    //                             "type": "plain_text",
+    //                             "text": question.title
+    //                         }
+    //                     },
+    //                     {
+    //                         "type": "divider"
+    //                     },
+    //                     {
+    //                         "type": "section",
+    //                         "text": {
+    //                             "type": "mrkdwn",
+    //                             "text": question.content
+    //                         },
+    //                     },
+    //                     {
+    //                         "type": "divider"
+    //                     },
+    //                     {
+    //                         "type": "section",
+    //                         "text": {
+    //                             "type": "mrkdwn",
+    //                             "text": `*date*:${Date.now().toString()}\n*userID*: ${userID}\n*userName*: ${thisUser.name}\n*userEmail*: ${thisUser.email}`
+    //                         }
+    //                     },
+    //                     {
+    //                         "type": "divider"
+    //                     }
+    //                 ]
+    //             }
+    //         ]
+    //     }
 
-        await webhook.send(payload);
+    //     await webhook.send(payload);
 
-        return thisQuestion;
-    }
+    //     return thisQuestion;
+    // }
 }
