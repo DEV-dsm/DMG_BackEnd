@@ -182,32 +182,32 @@ export class UserController {
         })
     }
         
-    // @ApiOperation({
-    //     summary: "문의 API",
-    //     description: "불만 사항 / 업데이트 건의 / 오류 등 발생 시 문의할 수 있음"
-    // })
-    // @ApiHeader({ name: "authorization", required: true })
-    // @ApiBody({
-    //     type: QuestionDto,
-    // })
-    // @ApiCreatedResponse({
-    //     status: 201,
-    //     description: "문의 완료"
-    // })
-    // @ApiNotFoundResponse({
-    //     status: 404,
-    //     description: "찾을 수 없는 사용자"
-    // })
-    // @Post('question')
-    // async question(@Headers('authorization') accesstoken: string, @Body() questionDto: QuestionDto): Promise<object>{
-    //     const data = await this.userService.question(accesstoken, questionDto);
+    @ApiOperation({
+        summary: "문의 API",
+        description: "불만 사항 / 업데이트 건의 / 오류 등 발생 시 문의할 수 있음"
+    })
+    @ApiHeader({ name: "authorization", required: true })
+    @ApiBody({
+        type: QuestionDto,
+    })
+    @ApiCreatedResponse({
+        status: 201,
+        description: "문의 완료"
+    })
+    @ApiNotFoundResponse({
+        status: 404,
+        description: "찾을 수 없는 사용자"
+    })
+    @Post('question')
+    async question(@Headers('authorization') accesstoken: string, @Body() questionDto: QuestionDto): Promise<object>{
+        const data = await this.userService.question(accesstoken, questionDto);
 
-    //     return Object.assign({
-    //         data,
-    //         statusCode: 201,
-    //         statusMsg: "문의가 완료되었습니다."
-    //     })
-    // }
+        return Object.assign({
+            data,
+            statusCode: 201,
+            statusMsg: "문의가 완료되었습니다."
+        })
+    }
 
     @ApiOperation({
         summary: "리프레시 토큰 검증",

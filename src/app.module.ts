@@ -8,7 +8,6 @@ import { ChatModule } from './chat/chat.module';
 import { SlackModule } from 'nestjs-slack-webhook';
 import slackConfig from './config/slack.config';
 import { configDotenv } from 'dotenv';
-import { UploadModule } from './upload/upload.module';
 
 configDotenv()
 
@@ -19,16 +18,16 @@ configDotenv()
 		envFilePath: `${process.cwd()}/.${process.env.NODE_ENV}.env`,
       	cache: true, // 캐싱
       	isGlobal: true, // 전역
-		load: [], // slackConfig
+		load: [slackConfig],
 		}),
-		// SlackModule.forRootAsync({
-		// 	imports: [ConfigModule],
-		// 	inject: [ConfigService],
-		// 	useFactory: async (config: ConfigService) => ({
-		// 		url: config.get<string>('SLACK'),
+		SlackModule.forRootAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: async (config: ConfigService) => ({
+				url: config.get<string>('SLACK'),
 				
-		// 	}),
-		// }),
+			}),
+		}),
 		TypeOrmModule.forRoot({
 			// TypeORM
 			type: 'mysql',
@@ -57,7 +56,6 @@ configDotenv()
 		UserModule,
 		ProfileModule,
 		ChatModule,
-		UploadModule,
 	],
 	controllers: [],
 	providers: [],
