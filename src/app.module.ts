@@ -8,6 +8,7 @@ import { ChatModule } from './chat/chat.module';
 import { SlackModule } from 'nestjs-slack-webhook';
 import slackConfig from './config/slack.config';
 import { configDotenv } from 'dotenv';
+import { UploadModule } from './upload/upload.module';
 
 configDotenv()
 
@@ -56,6 +57,7 @@ configDotenv()
 		UserModule,
 		ProfileModule,
 		ChatModule,
+		UploadModule,
 	],
 	controllers: [],
 	providers: [],
