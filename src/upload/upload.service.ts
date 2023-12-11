@@ -9,7 +9,8 @@ export class UploadService {
         const params = {
             Bucket: process.env.AWS_S3_BUCKET_NAME,
             Key: String(file.originalname),
-            Body: file.buffer
+            Body: file.buffer,
+            ACL: 'public-read'
         };
 
         try {
