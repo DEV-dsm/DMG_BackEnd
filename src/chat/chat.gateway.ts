@@ -56,13 +56,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async getNewMessage(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() data: {
-			userId: number,
+			userID: number,
 			message: string,
 			room: string
 		}): Promise<null> {
 		const thisUser = (await this.userService.validateAccess(client.client.request.headers.authorization)).userID
 		this.server.to(data.room).emit('message', {
-			userId: thisUser,
+			userID: thisUser,
 			message: data.message,
 			room: data.room
 		})
