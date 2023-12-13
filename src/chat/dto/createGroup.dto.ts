@@ -6,9 +6,8 @@ export class CreateGroupDto {
         example: "[2023] 2-1 공지방",
         description: "채팅방 이름"
     })
-    @IsOptional()
     @IsString()
-    name?: string;
+    name: string;
 
     @ApiProperty({
         example: "asdf",
