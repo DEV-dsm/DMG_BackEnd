@@ -22,10 +22,10 @@ export class User {
     @Column({ unique: true })
     email: string;
 
-    @Column({ default: '기본 프로필 사진 링크' })
+    @Column()
     profile: string;
 
-    @Column({ default: '기본 배경 사진 링크' })
+    @Column()
     background: string;
 
     @Column()
