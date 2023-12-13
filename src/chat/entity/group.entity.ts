@@ -7,10 +7,10 @@ export class Group {
     @PrimaryGeneratedColumn()
     groupID: number;
 
-    @Column({ nullable: true })
+    @Column()
     name: string;
 
-    @Column({ default: "채팅방 기본 프로필 사진" })
+    @Column()
     profile: string;
 
     @OneToMany(
