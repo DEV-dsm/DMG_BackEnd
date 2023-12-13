@@ -108,7 +108,7 @@ export class ChatService {
 
         const group = await this.groupEntity.save({
             name,
-            profile: profile ? profile : ''
+            profile: profile || ''
         });
 
         // 채팅방 만든이 추가 및 관리자 할당
