@@ -51,6 +51,6 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            docker pull ${{ secrets.ECR_URI }}:latest
+            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
             cd web/
-            docker-compose restart dmg-api
+            docker-compose pull && docker-compose up -d

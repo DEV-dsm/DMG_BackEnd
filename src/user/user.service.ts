@@ -15,8 +15,8 @@ import { createAccDevDto } from './dto/createAcc.dev.dto';
 import { QuestionDto } from './dto/question.dto';
 import { Question } from './entities/question.entity';
 import { LoginUserDto } from './dto/loginUser.dto';
-import { IncomingWebhook } from '@slack/webhook';
 import { FindPWDto } from './dto/findPW.dto';
+import { IncomingWebhook } from '@slack/webhook';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -124,7 +124,8 @@ export class UserService {
 
         return {
             access,
-            refresh
+            refresh,
+            userID : user.userID
         }
     }
     
