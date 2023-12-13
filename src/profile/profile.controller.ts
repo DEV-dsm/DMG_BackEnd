@@ -45,11 +45,11 @@ export class ProfileController {
     ): Promise<object> {
         const data = await this.profileService.patchStudentProfile(accesstoken, StudentProfileDto);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "프로필 수정에 성공했습니다."
-        })
+        };
     }
 
     @ApiOperation({ summary: "학생 프로필 조회 API", description: "학생 프로필 조회" })
@@ -71,11 +71,11 @@ export class ProfileController {
     async getStudentProfile(@Headers('authorization') accesstoken: string, @Param('userID') userID: number): Promise<object> {
         const data = await this.profileService.getStudentProfile(accesstoken, userID);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "학생 프로필 조회에 성공했습니다."
-        })
+        };
     }
 
     @ApiOperation({ summary: "학생 리스트 조회 API", description: "학생 리스트 조회" })
@@ -92,11 +92,11 @@ export class ProfileController {
     async getStudentProfileList(@Headers('authorization') accesstoken: string): Promise<object> {
         const data = await this.profileService.getStudentProfileList(accesstoken);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "학생 리스트 조회에 성공했습니다."
-        })
+        };
     }
 
     @ApiOperation({ summary: "교사 프로필 수정 API", description: "교사 프로필 수정" })
@@ -125,11 +125,11 @@ export class ProfileController {
         ): Promise<object> {
         const data = await this.profileService.patchTeacherProfile(accesstoken, teacherProfile);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "교사 개인 프로필 수정이 완료되었습니다."
-        })
+        };
     }
 
     @ApiOperation({ summary: "교사 프로필 조회 API", description: "교사 프로필 조회" })
@@ -151,11 +151,11 @@ export class ProfileController {
     async getTeacherProfile(@Headers('authorization') accesstoken: string, @Param('userID') userID: number): Promise<object> {
         const data = await this.profileService.getTeacherProfile(accesstoken, userID);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "교사 프로필 조회에 성공했습니다."
-        });
+        };
     }
 
     @ApiOperation({ summary: "교사 리스트 조회 API", description: "교사 리스트 조회" })
@@ -172,11 +172,11 @@ export class ProfileController {
     async getTeacherProfileList(@Headers('authorization') accesstoken: string): Promise<object> {
         const data = await this.profileService.getTeacherProfileList(accesstoken);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "교사 리스트 조회에 성공했습니다."
-        })
+        };
     }
 
     @ApiOperation({ summary: "유저 검색 API", description: "유저 검색" })
@@ -206,10 +206,10 @@ export class ProfileController {
         ): Promise<object> {
             const data = await this.profileService.searchProfileList(accesstoken, isStudent, searchProfile);
 
-            return Object.assign({
+            return {
                 data,
                 statusCode: 200,
                 statusMsg: "유저 검색에 성공했습니다."
-            })
+            };
     }
 }

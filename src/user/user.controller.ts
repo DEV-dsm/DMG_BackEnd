@@ -34,10 +34,10 @@ export class UserController {
     async createUserAcc(@Body() userAccDto: createAccDevDto) {
         await this.userService.createAcc(userAccDto);
 
-        return Object.assign({
+        return {
             statusCode: 201,
             statusMsg: "계정 생성이 완료되었습니다."
-        })
+        };
     }
 
     @ApiOperation({ summary: "로그인", description: "로그인 API" })
@@ -58,11 +58,11 @@ export class UserController {
     async login(@Body() loginDto: LoginUserDto) {
         const data = await this.userService.login(loginDto);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "로그인이 완료되었슈 ㅠㅠ"
-        })
+        };
     }
 
     @ApiOperation({ summary: "이메일 인증코드 발송 API", description: "이메일로 인증코드 발송" })
@@ -79,11 +79,11 @@ export class UserController {
     async sendEmail(@Body('email') email: string) {
         const data = await this.mailService.sendEmail(email);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "인증번호 이메일 발송이 완료되었습니다."
-        })
+        };
     }
 
     @ApiOperation({ summary: "인증코드 검증 API", description: "인증코드 검증" })
@@ -105,11 +105,11 @@ export class UserController {
     async verifyEmail(@Param('email') email: string, @Body('code') code: string) {
         const data = await this.mailService.verifyEmail(email, code);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "올바른 인증번호입니다."
-        })
+        };
     }
 
     @ApiOperation({
@@ -146,11 +146,11 @@ export class UserController {
     async patchPW(@Headers('authorization') accesstoken: string, @Body() passwordDto: passwordDto): Promise<object> {
         const data = await this.userService.patchPW(accesstoken, passwordDto);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "비밀번호가 수정되었습니다."
-        })
+        };
     }
 
     @ApiOperation({
@@ -175,11 +175,11 @@ export class UserController {
     async findPW(@Body() findPWDto: FindPWDto): Promise<object> {
         const data = await this.userService.findPW(findPWDto);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "비밀번호가 수정되었습니다."
-        })
+        };
     }
         
     @ApiOperation({
@@ -202,11 +202,11 @@ export class UserController {
     async question(@Headers('authorization') accesstoken: string, @Body() questionDto: QuestionDto): Promise<object>{
         const data = await this.userService.question(accesstoken, questionDto);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 201,
             statusMsg: "문의가 완료되었습니다."
-        })
+        };
     }
 
     @ApiOperation({
@@ -226,10 +226,10 @@ export class UserController {
     async validateRefresh(@Headers('authorization') refreshToken: string): Promise<object>{ 
         const data = await this.userService.validateRefresh(refreshToken);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "토큰 재발급이 완료되었습니ㅏㄷ."
-        })
+        };
     }
 }

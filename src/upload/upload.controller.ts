@@ -11,10 +11,10 @@ export class UploadController {
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
         const data = await this.uploadService.uploadFile(file);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 201,
             statusMsg: "파일 업로드 성공"
-        });
+        };
     }
 }
