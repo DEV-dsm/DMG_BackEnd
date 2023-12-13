@@ -41,11 +41,11 @@ export class ChatController {
     async createMessage(@Headers('authorization') accesstoken: string, @Body() createMessageDto: CreateMessageDto): Promise<object> {
         const data = await this.chatService.createMessage(accesstoken, createMessageDto);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 201,
             statusMsg: "OK"
-        })
+        };
     }
 
     @ApiOperation({ summary: "새로운 채팅방 생성 API", description: "새로운 채팅방 생성" })
@@ -71,10 +71,10 @@ export class ChatController {
     async createGroup(@Headers('authorization') accesstoken: string, @Body() createGroupDto: CreateGroupDto) {
         await this.chatService.createGroup(accesstoken, createGroupDto);
 
-        return Object.assign({
+        return {
             statusCode: 201,
             statusMsg: "새로운 채팅방이 생성되었습니다."
-        });
+        };
     }
 
     @ApiOperation({ summary: "채팅방 리스트 조회하기 API", description: "채팅방 리스트 조회하기" })
@@ -95,11 +95,11 @@ export class ChatController {
     async getChatList(@Headers('authorization') accesstoken: string) {
         const data = await this.chatService.getChatList(accesstoken);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "OK"
-        })
+        };
     }
 
     @ApiOperation({ summary: "채팅방에 멤버 초대하기 API", description: "채팅방에 멤버 초대하기" })
@@ -125,11 +125,11 @@ export class ChatController {
     async inviteMember(@Headers('authorization') accesstoken: string, @Body() inviteMemberDto: InviteMemberDto) {
         const data = await this.chatService.inviteMember(accesstoken, inviteMemberDto);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "채팅방 초대 성공"
-        })
+        };
     }
 
     @ApiOperation({ summary: "채팅방 나가기 API", description: "채팅방 나가기 / 한 채팅방에는 무조건 한 명 이상의 관리자가 존재해야함" })
@@ -155,10 +155,10 @@ export class ChatController {
     async goneGroup(@Headers('authorization') accesstoken: string, @Query('groupID') groupID: number) {
         await this.chatService.goneGroup(accesstoken, groupID);
 
-        return Object.assign({
+        return {
             statusCode: 200,
             statusMsg: "채팅방 나가기 완료"
-        })
+        };
     }
 
     @ApiOperation({ summary: "채팅방 멤버 강제퇴장 API", description: "채팅방 멤버 강제퇴장" })
@@ -191,10 +191,10 @@ export class ChatController {
     @Query('userID') userID: number) {
         await this.chatService.getOutMember(accesstoken, groupID, userID);
 
-        return Object.assign({
+        return {
             statusCode: 200,
             statusMsg: "강제퇴장 완료"
-        })
+        };
     }
 
     @ApiOperation({ summary: "채팅방 정보 확인하기 API", description: "특정 채팅방의 정보를 확인" })
@@ -220,11 +220,11 @@ export class ChatController {
     async getGroupInfo(@Headers('authorization') accesstoken: string, @Query('groupID') groupID: number) {
         const data = await this.chatService.getGroupInfo(accesstoken, groupID);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: ""
-        })
+        };
     }
 
     @ApiOperation({ summary: '채팅방 정보 수정 API', description: '채팅방의 제목, 프로필 사진 등을 변경' })
@@ -254,11 +254,11 @@ export class ChatController {
     async updateGroupInfo(@Headers('authorization') accesstoken: string, @Body() updateGroupInfoDto: UpdateGroupInfoDto): Promise<object> {
         const data = await this.chatService.updateGroupInfo(accesstoken, updateGroupInfoDto);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "정보 수정 완료"
-        })
+        };
     }
 
     @ApiOperation({ summary: '새로운 관리자 지정 API', description: '기존 방의 멤버 중 새로운 관리자 지정' })
@@ -292,11 +292,11 @@ export class ChatController {
         @Query('userID') userID: number): Promise<object> {
         const data = await this.chatService.newGroupManager(accesstoken, groupID, userID);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: '관리자 지정 완료'
-        })
+        };
     }
     
     @ApiOperation({ summary: "관리자 해제 API", description: "관리자 해제" })
@@ -338,10 +338,10 @@ export class ChatController {
         @Query('userID') userID: number) {
         await this.chatService.dismissManager(accesstoken, groupID, userID);
 
-        return Object.assign({
+        return {
             statusCode: 200,
             statusMsg: "관리자 해제 완료"
-        })
+        };
     }
     
     @ApiOperation({ summary: "채팅 공지 API", description: "채팅을 공지로 올림 / 한 채팅 그룹의 공지는 최대 1개" })
@@ -371,11 +371,11 @@ export class ChatController {
     async setChatToNotice(@Headers('authorization') accesstoken: string, @Query('chatID') chatID: number): Promise<object> {
         const data = await this.chatService.setChatToNotice(accesstoken, chatID);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "채팅 공지 완료"
-        })
+        };
     }
 
     @ApiOperation({ summary: "특정 유저의 레포 목록 가져오기 API", description: "깃허브 아이디를 통해 해당 유저의 레포지토리 목록을 가져옴" })
@@ -393,11 +393,11 @@ export class ChatController {
     async choosePrRepo(@Headers('authorization') accesstoken: string, @Body('userName') userName: string): Promise<object> {
         const data = await this.chatService.choosePrRepo(accesstoken, userName);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: ""
-        })
+        };
     }
 
     @ApiOperation({ summary: "PR 알림 만들기", description: "특정 레포지토리를 선택해 해당 레포의 PR 알림 봇을 만듬" })
@@ -431,7 +431,7 @@ export class ChatController {
             data,
             statusCode: 201,
             statusMsg: "웹훅 생성 완료"
-        }
+        };
     }
 
     @ApiOperation({ summary: "웹훅 이벤트 발생 시 처리 API", description: "웹훅 이벤트 발생 시 해당 이벤트에 대해 처리" })
@@ -448,7 +448,7 @@ export class ChatController {
             data,
             statusCode: 201,
             statusMsg: "처리 성공"
-        }
+        };
     }
 
     @ApiOperation({ summary: "채팅 조회 API", description: "채팅방의 채팅 조회 API" })
@@ -470,10 +470,10 @@ export class ChatController {
     async readMessage(@Headers('authorization') accesstoken: string, @Param('groupID') groupID: number): Promise<object> {
         const data = await this.chatService.readMessage(accesstoken, groupID);
 
-        return Object.assign({
+        return {
             data,
             statusCode: 200,
             statusMsg: "메시지 조회 성공"
-        })
+        };
     }
 }
