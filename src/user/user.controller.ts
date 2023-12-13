@@ -36,7 +36,7 @@ export class UserController {
 
         return Object.assign({
             statusCode: 201,
-            statusMsg: "계정 생성 완료됐다 test"
+            statusMsg: "계정 생성이 완료되었습니다."
         })
     }
 
@@ -61,7 +61,7 @@ export class UserController {
         return Object.assign({
             data,
             statusCode: 200,
-            statusMsg: "로그인이 완료되었습니다. 힛"
+            statusMsg: "로그인이 완료되었습니다."
         })
     }
 
