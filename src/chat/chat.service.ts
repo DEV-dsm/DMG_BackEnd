@@ -92,43 +92,26 @@ export class ChatService {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
         // 파라미터 분리
-        const { profile, member } = createGroupDto;
-
-        // 멤버 이름 반환을 위해 배열 선언
-        let userName = []
+        const { name, profile, member } = createGroupDto;
 
         // userID를 포함하는 경우
         if (member.includes(userID)) throw new ConflictException('자신을 포함할 수 없음');
 
         // 중복값이 존재하는 경우
         if (member.length != new Set(member).size) throw new ConflictException('같은 사람이 여럿 포함될 수 없음');
-
-        // userName 배열에 관리자 이름 먼저 추가
-        const findCreator = await this.userEntity.findOneBy({ userID });
-        userName.push(findCreator.name)
-
-        // 배열에 멤버 이름 추가
-        for (let i = 0; i < member.length; i++) {
-            const findUserName = await this.userEntity.findOneBy({ userID: member[i] });
-            userName.push(findUserName.name);
-        }
-
-        const group = await this.groupEntity.save({
-            name: userName.join(", "),
-            profile
+        
+        // 멤버 배열에서 존재하지 않는 유저 필터링
+        member.map(async (x, idx) => {
+            const existMember = await this.userEntity.findOneBy({ userID: member[idx] });
+            if (!existMember) throw new NotFoundException('존재하지 않는 멤버');
         });
 
-        if (createGroupDto.name) {
-            const findGroup = await this.groupEntity.findOneBy({
-                groupID: group.groupID
-            });
+        const group = await this.groupEntity.save({
+            name,
+            profile: profile ? profile : ''
+        });
 
-            await this.groupEntity.update(findGroup, {
-                name: createGroupDto.name
-            });
-        }
-
-        // 단체 채팅방 만든이 추가 및 관리자 할당
+        // 채팅방 만든이 추가 및 관리자 할당
         await this.groupMappingEntity.save({
             groupID: group.groupID,
             userID,
@@ -143,23 +126,13 @@ export class ChatService {
                 isManager: true
             });
         } else {
-            for (let i = 0; i < member.length; i++) {
-                // 멤버 찾기
-                const findUser = await this.userEntity.findOneBy({ userID: member[i] });
-                if (!findUser) throw new NotFoundException('존재하지 않는 사람');
-    
+            member.map(async (x, idx) => {
                 await this.groupMappingEntity.save({
                     groupID: group.groupID,
-                    userID: member[i],
+                    userID: member[idx],
                     isManager: false
                 });
-            }
-        }
-
-        if (createGroupDto.name) {
-            return createGroupDto.name
-        } else {
-            return userName
+            });
         }
     }
 

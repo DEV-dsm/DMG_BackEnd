@@ -69,13 +69,12 @@ export class ChatController {
     })
     @Post('newGroup')
     async createGroup(@Headers('authorization') accesstoken: string, @Body() createGroupDto: CreateGroupDto) {
-        const data = await this.chatService.createGroup(accesstoken, createGroupDto);
+        await this.chatService.createGroup(accesstoken, createGroupDto);
 
         return Object.assign({
-            data,
             statusCode: 201,
             statusMsg: "새로운 채팅방이 생성되었습니다."
-        })
+        });
     }
 
     @ApiOperation({ summary: "채팅방 리스트 조회하기 API", description: "채팅방 리스트 조회하기" })
