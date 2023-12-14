@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UseFilters } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, UseFilters } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Redis } from 'ioredis';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
@@ -79,7 +79,7 @@ export class ProfileService {
         const thisUser = await this.userEntity.findOneBy({ userID });
         const thisStudent = await this.studentEntity.findOneBy({ userID });
         
-        if(!thisUser.isStudent) throw new ConflictException('이 API는 학생 전용입니다.')
+        if(!thisUser.isStudent) throw new ForbiddenException('이 API는 학생 전용입니다.')
 
         const identify = studentProfileDto.identify ?? thisUser.identify;
         const name = studentProfileDto.name ?? thisUser.name;
@@ -126,7 +126,7 @@ export class ProfileService {
         const thisUser = await this.userEntity.findOneBy({ userID });
         const thisTeacher = await this.teacherEntity.findOneBy({ userID });
 
-        if (thisUser.isStudent) throw new ConflictException('이 API는 교사 전용입니다.');
+        if (thisUser.isStudent) throw new ForbiddenException('이 API는 교사 전용입니다.');
 
         const identify = teacherProfileDto.identify ?? thisUser.identify;
         const name = teacherProfileDto.name ?? thisUser.name;
