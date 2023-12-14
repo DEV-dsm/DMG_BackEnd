@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Headers, Param, Patch, Post, UseFilters } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBody, ApiConflictResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBody, ApiConflictResponse, ApiForbiddenResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
-import { searchProfileDto } from 'src/user/dto/searchProfile.dto';
-import { StudentProfileDto } from 'src/user/dto/studentProfile.dto';
-import { TeacherProfileDto } from 'src/user/dto/teacherProfile.dto';
+import { SearchProfileDto } from 'src/profile/dto/searchProfile.dto';
+import { UpdateStudentProfileDto } from './dto/updateStudentProfile.dto';
+import { UpdateTeacherProfileDto } from './dto/updateTeacherProfile.dto';
 import { ProfileService } from './profile.service';
 
 @ApiTags('프로필 API')
@@ -21,7 +21,7 @@ export class ProfileController {
         description: "학생 프로필 수정하기"
     })
     @ApiHeader({ name: 'authorization', required: true })
-    @ApiBody({ type: StudentProfileDto })
+    @ApiBody({ type: UpdateStudentProfileDto })
     @ApiOkResponse({
         status: 200,
         description: "학생 프로필 수정 완료"
@@ -30,9 +30,9 @@ export class ProfileController {
         status: 401,
         description: "액세스 토큰 검증 실패"
     })
-    @ApiConflictResponse({
-        status: 409,
-        description: "학생 전용 API에 선생님이 요청을 보냄"
+    @ApiForbiddenResponse({
+        status: 403,
+        description: "학생 전용 API에 교사가 요청을 보냄"
     })
     @ApiConflictResponse({
         status: 409,
@@ -41,12 +41,11 @@ export class ProfileController {
     @Patch('student')
     async updateStudentProfile(
         @Headers('authorization') accesstoken: string,
-        @Body() StudentProfileDto: StudentProfileDto
+        @Body() studentProfileDto: UpdateStudentProfileDto
     ): Promise<object> {
-        const data = await this.profileService.patchStudentProfile(accesstoken, StudentProfileDto);
+        await this.profileService.patchStudentProfile(accesstoken, studentProfileDto);
 
         return {
-            data,
             statusCode: 200,
             statusMsg: "프로필 수정에 성공했습니다."
         };
@@ -101,7 +100,7 @@ export class ProfileController {
 
     @ApiOperation({ summary: "교사 프로필 수정 API", description: "교사 프로필 수정" })
     @ApiHeader({ name: "authorization", required: true })
-    @ApiBody({ type: TeacherProfileDto })
+    @ApiBody({ type: UpdateTeacherProfileDto })
     @ApiOkResponse({
         status: 200,
         description: "교사 프로필 수정 완료"
@@ -110,8 +109,8 @@ export class ProfileController {
         status: 401,
         description: "액세스 토큰 검증 실패"
     })
-    @ApiConflictResponse({
-        status: 409,
+    @ApiForbiddenResponse({
+        status: 403,
         description: "교사 전용 API에 학생이 요청을 보냄"
     })
     @ApiConflictResponse({
@@ -121,12 +120,11 @@ export class ProfileController {
     @Patch('teacher')
     async updateTeacherProfile(
         @Headers('authorization') accesstoken: string,
-        @Body() teacherProfile: TeacherProfileDto
+        @Body() teacherProfile: UpdateTeacherProfileDto
         ): Promise<object> {
-        const data = await this.profileService.patchTeacherProfile(accesstoken, teacherProfile);
+        await this.profileService.patchTeacherProfile(accesstoken, teacherProfile);
 
         return {
-            data,
             statusCode: 200,
             statusMsg: "교사 개인 프로필 수정이 완료되었습니다."
         };
@@ -202,7 +200,7 @@ export class ProfileController {
     async searchProfileList(
         @Headers('authorization') accesstoken: string,
         @Param('isStudent') isStudent: boolean,
-        @Body() searchProfile: searchProfileDto
+        @Body() searchProfile: SearchProfileDto
         ): Promise<object> {
             const data = await this.profileService.searchProfileList(accesstoken, isStudent, searchProfile);
 

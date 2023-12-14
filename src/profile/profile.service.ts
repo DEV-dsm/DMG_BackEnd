@@ -1,16 +1,16 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UseFilters } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, UseFilters } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Redis } from 'ioredis';
 import { HttpExceptionFilter } from 'src/filter/httpException.filter';
-import { searchProfileDto } from 'src/user/dto/searchProfile.dto';
-import { StudentProfileDto } from 'src/user/dto/studentProfile.dto';
-import { TeacherProfileDto } from 'src/user/dto/teacherProfile.dto';
+import { SearchProfileDto } from 'src/profile/dto/searchProfile.dto';
 import { Student } from 'src/user/entities/student.entity';
 import { Teacher } from 'src/user/entities/teacher.entity';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
+import { UpdateStudentProfileDto } from './dto/updateStudentProfile.dto';
+import { UpdateTeacherProfileDto } from './dto/updateTeacherProfile.dto';
 
 @UseFilters(new HttpExceptionFilter())
 @Injectable()
@@ -68,18 +68,18 @@ export class ProfileService {
     /**
      * 
      * @param accesstoken 
-     * @param studentProfileDto 
+     * @param studentProfileDto
      * @returns 
      * 
      * 학생 프로필 수정
      */
-    async patchStudentProfile(accesstoken: string, studentProfileDto: StudentProfileDto): Promise<object> {
+    async patchStudentProfile(accesstoken: string, studentProfileDto: UpdateStudentProfileDto) {
         const { userID } = await this.userService.validateAccess(accesstoken);
         
         const thisUser = await this.userEntity.findOneBy({ userID });
         const thisStudent = await this.studentEntity.findOneBy({ userID });
         
-        if(!thisUser.isStudent) throw new ConflictException('이 API는 학생 전용입니다.')
+        if(!thisUser.isStudent) throw new ForbiddenException('이 API는 학생 전용입니다.')
 
         const identify = studentProfileDto.identify ?? thisUser.identify;
         const name = studentProfileDto.name ?? thisUser.name;
@@ -93,7 +93,7 @@ export class ProfileService {
         if (await this.userEntity.findOneBy({ identify }) && (identify != thisUser.identify)) throw new ConflictException('아이디 중복');
         if (await this.userEntity.findOneBy({ email }) && (email != thisUser.email)) throw new ConflictException('이메일 중복');
 
-        const updatedUser = await this.userEntity.update({
+        await this.userEntity.update({
             userID
         }, {
             identify,
@@ -103,18 +103,13 @@ export class ProfileService {
             background
         })
 
-        const updatedStudent = await this.studentEntity.update({
+        await this.studentEntity.update({
             userID
         }, {
             major,
             github,
             number
         })
-
-        return {
-            updatedUser,
-            updatedStudent
-        }
     }
 
     /**
@@ -125,39 +120,43 @@ export class ProfileService {
      * 
      * 교사 프로필 수정
      */
-    async patchTeacherProfile(accesstoken: string, teacherProfileDto: TeacherProfileDto): Promise<object> {
+    async patchTeacherProfile(accesstoken: string, teacherProfileDto: UpdateTeacherProfileDto) {
         const { userID } = await this.userService.validateAccess(accesstoken);
 
-        const user = await this.userEntity.findOneBy({ userID });
+        const thisUser = await this.userEntity.findOneBy({ userID });
+        const thisTeacher = await this.teacherEntity.findOneBy({ userID });
 
-        if (user.isStudent) throw new ConflictException('이 API는 교사 전용입니다.');
+        if (thisUser.isStudent) throw new ForbiddenException('이 API는 교사 전용입니다.');
 
-        const { identify, email, profile, background, location, subject, duty } = teacherProfileDto;
+        const identify = teacherProfileDto.identify ?? thisUser.identify;
+        const name = teacherProfileDto.name ?? thisUser.name;
+        const email = teacherProfileDto.email ?? thisUser.email;
+        const profile = teacherProfileDto.profile ?? thisUser.profile;
+        const background = teacherProfileDto.background ?? thisUser.background;
+        const location = teacherProfileDto.location ?? thisTeacher.location;
+        const subject = teacherProfileDto.subject ?? thisTeacher.subject;
+        const duty = teacherProfileDto.duty ?? thisTeacher.duty
 
-        if (await this.userEntity.findOneBy({ identify })) throw new ConflictException('아이디 중복');
-        if (await this.userEntity.findOneBy({ email })) throw new ConflictException('이메일 중복');
+        if (await this.userEntity.findOneBy({ identify }) && (identify != thisUser.identify)) throw new ConflictException('아이디 중복');
+        if (await this.userEntity.findOneBy({ email }) && (email != thisUser.email)) throw new ConflictException('이메일 중복');
 
-        const updateUser = await this.userEntity.update({
+        await this.userEntity.update({
             userID
         }, {
             identify,
+            name,
             email,
             profile,
             background
         });
 
-        const updateTeacher = await this.teacherEntity.update({
+        await this.teacherEntity.update({
             userID
         }, {
             location,
             subject,
             duty
         });
-
-        return {
-            updateUser,
-            updateTeacher
-        }
     }
     
     /**
@@ -212,7 +211,7 @@ export class ProfileService {
      * 
      * 유저 검색
      */
-    async searchProfileList(accesstoken: string, isStudent: boolean, searchProfileDto: searchProfileDto): Promise<object> {
+    async searchProfileList(accesstoken: string, isStudent: boolean, searchProfileDto: SearchProfileDto): Promise<object> {
         const { standard, keyword } = searchProfileDto;
         if(standard != 'number' && standard != 'name') throw new BadRequestException('잘못된 요청');
         
