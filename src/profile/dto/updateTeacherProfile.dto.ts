@@ -1,55 +1,70 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
-export class TeacherProfileDto {
+export class UpdateTeacherProfileDto {
     
     @ApiProperty({
         example: "osj",
         description: "커스텀 아이디"
     })
     @IsString()
-    identify: string;
+    @IsOptional()
+    identify?: string;
+
+    @ApiProperty({
+        example: "오상진",
+        description: "이름"
+    })
+    @IsString()
+    @IsOptional()
+    name?: string;
 
     @ApiProperty({
         example: "osj@dsm.hs.kr",
         description: "이메일"
     })
     @IsString()
-    email: string;
+    @IsOptional()
+    email?: string;
 
     @ApiProperty({
         example: "asdfasdf",
         description: "프로필 사진 파일 경로"
     })
     @IsString()
-    profile: string;
+    @IsOptional()
+    profile?: string;
 
     @ApiProperty({
         example: "asdfasdf",
         description: "배경 사진 파일 경로"
     })
     @IsString()
-    background: string;
+    @IsOptional()
+    background?: string;
 
     @ApiProperty({
         example: "2층 본부 교무실",
         description: "교무실 위치"
     })
     @IsString()
-    location: string;
+    @IsOptional()
+    location?: string;
 
     @ApiProperty({
         example: "과학",
         description: "담당 과목"
     })
     @IsString()
-    subject: string;
+    @IsOptional()
+    subject?: string;
 
     @ApiProperty({
         example: "마이스터 부장",
         description: "담당 직무"
     })
     @IsString()
-    duty: string;
+    @IsOptional()
+    duty?: string;
 
 }
