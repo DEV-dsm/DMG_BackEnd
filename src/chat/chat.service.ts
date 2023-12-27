@@ -150,12 +150,11 @@ export class ChatService {
          * 
          * => 그룹별로 가장 최신의 채팅 아이디를 가져옴
          *  */ 
-        const thisQuery = await this.groupEntity
+        const thisQuery = await this.chattingEntity
             .createQueryBuilder('qb')
-            .select('MAX(chat.chatID) AS chatID')
-            .from(Chatting, 'chat')
-            .addFrom(Group, 'group')
-            .where('group.groupID = chat.groupID')
+            .select('MAX(qb.chatID) AS chatID')
+            .from(Group, 'group')
+            .where('group.groupID = qb.groupID')
             .groupBy('group.groupID')
             .getRawMany();
         
