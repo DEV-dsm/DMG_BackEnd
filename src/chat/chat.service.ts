@@ -118,6 +118,8 @@ export class ChatService {
             isManager: true
         });
 
+        await this.createMessage(accesstoken, { groupID: group.groupID, body: "새로운 그룹을 생성하였습니다." });
+
         // 1 대 1 채팅일 때 상대방 추가 및 관리자 권한 부여
         if (member.length === 1) {
             await this.groupMappingEntity.save({
