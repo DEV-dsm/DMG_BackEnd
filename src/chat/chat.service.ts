@@ -138,7 +138,16 @@ export class ChatService {
 
     async getChatList(accesstoken: string): Promise<object> {
         const { userID } = await this.userService.validateAccess(accesstoken);
-    
+        const arr: number[] = [];
+
+        /**
+         * SELECT MAX(chat.chatID) AS chatID 
+         * FROM Chatting AS chat, `Group` as `group`
+         * WHERE group.groupID = chat.groupID
+         * GROUP BY group.groupID
+         * 
+         * => 그룹별로 가장 최신의 채팅 아이디를 가져옴
+         *  */ 
         const thisQuery = await this.groupEntity
             .createQueryBuilder('qb')
             .select('MAX(chat.chatID) AS chatID')
@@ -147,17 +156,32 @@ export class ChatService {
             .where('group.groupID = chat.groupID')
             .groupBy('group.groupID')
             .getRawMany();
-    
-        const arr: number[] = [];
-    
-        for (let i = 0; i < thisQuery.length; i++) {
-            arr.push(thisQuery[i].chatID);
-        }
-    
+        
+        // arr에 thisQuery에서 가져온 chatID를 넣음
+        thisQuery.map(e => {
+            arr.push(e.chatID)
+        })
+
+        /**
+         * SELECT qb.groupID AS groupID, 
+         *        qb.name AS name,
+         *        qb.profile AS profile,
+         *        chat.body AS body,
+         *        chat.isAnnounce AS isAnnounce,
+         *        map.userID AS userID,
+         *        chat.chatID AS chatID
+         * FROM `Group` AS qb
+         * INNER JOIN GroupMapping AS map ON GroupMapping.groupID = qb.groupID
+         * INNER JOIN Chatting AS chat ON Chatting.groupID = qb.groupID
+         * WHERE chat.chatID IN ${arr}
+         * AND WHERE map.userID = ${userID}
+         * 
+         * => chatting과 group_mapping DB를 groupID가 일치하는 행만 이너 조인, chatID가 arr에 있고 userID가 일치하는 행만 조회
+         */
         const thisList = await this.groupEntity
             .createQueryBuilder('qb')
-            .leftJoin(Chatting, 'chat', 'chat.groupID = qb.groupID')
-            .leftJoin(
+            .innerJoin(Chatting, 'chat', 'chat.groupID = qb.groupID')
+            .innerJoin(
                 GroupMapping,
                 'map',
                 'map.groupID = qb.groupID',
@@ -171,9 +195,9 @@ export class ChatService {
                 'map.userID AS userID',
                 'chat.chatID AS chatID',
             ])
-            .where('chat.chatID IN (:aarr)', { aarr: arr })
+            .where('chat.chatID IN (:...arr)', { arr })
             .andWhere('map.userID = :userID', { userID })
-            .getRawMany();
+            .getRawMany()
     
         return thisList;
     }
