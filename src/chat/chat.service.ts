@@ -192,7 +192,7 @@ export class ChatService {
                 'qb.profile AS profile',
                 'chat.body AS body',
                 'chat.isAnnounce AS isAnnounce',
-                'map.userID AS userID',
+                'chat.userID AS userID',
                 'chat.chatID AS chatID',
             ])
             .where('chat.chatID IN (:...arr)', { arr })
