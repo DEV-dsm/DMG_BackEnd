@@ -77,6 +77,31 @@ export class ChatController {
         };
     }
 
+    // @ApiOperation({ summary: "채팅방 제목 검색 API", description: "채팅방 제목 검색하기" })
+    // @ApiHeader({ name: "authorization", required: true })
+    // @ApiOkResponse({
+    //     status: 200,
+    //     description: "채팅방 제목 검색 성공"
+    // })
+    // @ApiUnauthorizedResponse({
+    //     status: 401,
+    //     description: "액세스 토큰 검증 실패"
+    // })
+    // @ApiNotFoundResponse({
+    //     status: 404,
+    //     description: "존재하지 않는 채팅방 제목"
+    // })
+    // @Get('search')
+    // async searchGroupTitle(@Headers('authorization') accesstoken: string, @Query('searchWord') searchWord: string) {
+    //     const data = await this.chatService.searchGroupTitle(accesstoken, searchWord);
+
+    //     return {
+    //         data,
+    //         statusCode: 200,
+    //         statusMsg: "채팅방 제목 검색 성공"
+    //     };
+    // }
+
     @ApiOperation({ summary: "채팅방 리스트 조회하기 API", description: "채팅방 리스트 조회하기" })
     @ApiHeader({ name: "authorization", required: true })
     @ApiOkResponse({
@@ -92,8 +117,8 @@ export class ChatController {
         description: "참여한 채팅방이 없음"
     })
     @Get('list')
-    async getChatList(@Headers('authorization') accesstoken: string) {
-        const data = await this.chatService.getChatList(accesstoken);
+    async getGroupList(@Headers('authorization') accesstoken: string): Promise<object> {
+        const data = await this.chatService.getGroupList(accesstoken);
 
         return {
             data,
