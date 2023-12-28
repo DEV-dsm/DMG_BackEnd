@@ -101,10 +101,12 @@ export class ChatService {
         if (member.length != new Set(member).size) throw new ConflictException('같은 사람이 여럿 포함될 수 없음');
         
         // 멤버 배열에서 존재하지 않는 유저 필터링
-        member.map(async (x, idx) => {
-            const existMember = await this.userEntity.findOneBy({ userID: member[idx] });
-            if (!existMember) throw new NotFoundException('존재하지 않는 멤버');
-        });
+        const users = await this.userEntity.createQueryBuilder('qb')
+            .select('qb.userID')
+            .whereInIds(member)
+            .getMany();
+            
+        if (users.length !== member.length) throw new NotFoundException('존재하지 않는 멤버');
 
         const group = await this.groupEntity.save({
             name,
@@ -138,7 +140,17 @@ export class ChatService {
         }
     }
 
-    async getChatList(accesstoken: string): Promise<object> {
+    // async searchGroupTitle(accesstoken: string, searchWord: string) {
+    //     const { userID } = await this.userService.validateAccess(accesstoken);
+
+    //     const thisQuery = await this.groupEntity
+    //         .createQueryBuilder('qb')
+    //         .select()
+    //         .from()
+
+    // }
+
+    async getGroupList(accesstoken: string): Promise<object> {
         const { userID } = await this.userService.validateAccess(accesstoken);
         const arr: number[] = [];
 
@@ -157,7 +169,7 @@ export class ChatService {
             .where('group.groupID = qb.groupID')
             .groupBy('group.groupID')
             .getRawMany();
-        
+
         // arr에 thisQuery에서 가져온 chatID를 넣음
         thisQuery.map(e => {
             arr.push(e.chatID)
@@ -198,7 +210,7 @@ export class ChatService {
             ])
             .where('chat.chatID IN (:...arr)', { arr })
             .andWhere('map.userID = :userID', { userID })
-            .getRawMany()
+            .getRawMany();
     
         return thisList;
     }
