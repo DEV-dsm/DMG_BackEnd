@@ -14,7 +14,7 @@ import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { GroupMapping } from './entity/groupMapping.entity';
 
-@WebSocketGateway(80, { path: '/ws/chat', namespace: 'chat', transports: ['websocket'], cors: { origin: ['*'] } }) // 80번 포트, /chat/${groupID} 접속
+@WebSocketGateway(80, { namespace: /\/chat\/.+/, transports: ['websocket'], cors: { origin: ['*'] } }) // 80번 포트, /chat/${groupID} 접속
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		@InjectRepository(GroupMapping) private groupMappingEntity: Repository<GroupMapping>,
