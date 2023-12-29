@@ -340,9 +340,12 @@ export class ChatService {
             .orderBy('isManager', 'DESC')
             .getRawMany();
 
+        const isOrganization: boolean = count.length == 2 ? false: true
+        
         return {
             thisGroup,
             member: count,
+            isOrganization
         };
     }
 
