@@ -37,10 +37,10 @@ export class ProfileService {
         const thisUser = await this.userEntity.findOneBy({ userID });
         const thisStudent = await this.studentEntity.findOneBy({ userID });
 
-        let isOnline = 0;
+        let isOnline = false;
 
         if (!thisUser || !thisStudent) throw new NotFoundException('존재하지 않는 유저');
-        if(await this.redis.get(`${userID}AccessToken`)) isOnline = 1
+        if(await this.redis.get(`${userID}AccessToken`)) isOnline = true
 
         return Object.assign(thisUser, thisStudent, {isOnline});
     }
@@ -173,10 +173,10 @@ export class ProfileService {
         const thisUser = await this.userEntity.findOneBy({ userID });
         const thisTeacher = await this.teacherEntity.findOneBy({ userID });
 
-        let isOnline = 0;
+        let isOnline = false;
 
         if (!thisUser || !thisTeacher) throw new NotFoundException('존재하지 않는 유저');
-        if(await this.redis.get(`${userID}AccessToken`)) isOnline = 1
+        if(await this.redis.get(`${userID}AccessToken`)) isOnline = true
 
         return Object.assign(thisUser, thisTeacher, {isOnline});
     }
