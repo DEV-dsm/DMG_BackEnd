@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
 	SubscribeMessage,
@@ -34,6 +35,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		// JWT 유효성 검사
 		const { userID } = await this.userService.validateAccess(socket.handshake.headers.authorization);
 
+		if(!userID) throw new UnauthorizedException()
+
 		// 유저가 속한 채팅방 찾기
 		const groupList = await this.groupMappingEntity.findBy({ userID });
 		
@@ -60,9 +63,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			message: string,
 			room: string
 		}): Promise<null> {
-		const thisUser = (await this.userService.validateAccess(client.client.request.headers.authorization)).userID
+		const { userID } = (await this.userService.validateAccess(client.client.request.headers.authorization))
 		this.server.to(data.room).emit('message', {
-			userID: thisUser,
+			userID,
 			message: data.message,
 			room: data.room
 		})
