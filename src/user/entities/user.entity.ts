@@ -22,10 +22,10 @@ export class User {
     @Column({ unique: true })
     email: string;
 
-    @Column()
+    @Column({ nullable: true })
     profile: string;
 
-    @Column()
+    @Column({ nullable: true })
     background: string;
 
     @Column()
