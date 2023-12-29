@@ -227,12 +227,12 @@ export class ChatService {
             groupID,
             userID,
         });
-        if (!findGroup) throw new NotFoundException();
+        if (!findGroup) throw new NotFoundException('채팅방을 찾을 수 없음');
 
         for (let i = 0; i < newUser.length; i++) {
             // 초대 멤버 존재 여부 확인
             const findUser = await this.userEntity.findOneBy({ userID: newUser[i] });
-            if (!findUser) throw new NotFoundException();
+            if (!findUser) throw new NotFoundException('유저를 찾을 수 없음');
 
             // 초대 멤버 채팅방 존재 여부 확인
             const existUser = await this.groupMappingEntity.findOneBy({
@@ -335,7 +335,7 @@ export class ChatService {
         const count = await this.groupMappingEntity
             .createQueryBuilder('qb')
             .innerJoin('qb.user', 'user')
-            .select(['qb.isManager', 'identify', 'name', 'profile'])
+            .select(['qb.userID AS userID', 'qb.isManager AS isManager', 'identify', 'name', 'profile'])
             .where('qb.groupID = :groupID', { groupID })
             .orderBy('isManager', 'DESC')
             .getRawMany();
@@ -425,7 +425,7 @@ export class ChatService {
             groupID,
             userID: managerID,
         });
-        if (!thisGroup || !thisUser) throw new NotFoundException();
+        if (!thisGroup || !thisUser) throw new NotFoundException('채팅방이나 유저 찾지 못함');
         if (!thisGroup.isManager)
             throw new ForbiddenException('관리자 해제 권한 없음');
         if (!thisUser.isManager) throw new ConflictException('이미 관리자가 아님');
