@@ -127,7 +127,7 @@ export class ChatController {
         };
     }
 
-    @ApiOperation({ summary: "채팅방에 멤버 초대하기 API", description: "채팅방에 멤버 초대하기" })
+    @ApiOperation({ summary: "새로운 멤버 초대 API", description: "새로운 멤버 초대" })
     @ApiHeader({ name: "authorization", required: true })
     @ApiBody({ type: InviteMemberDto })
     @ApiOkResponse({
@@ -421,7 +421,7 @@ export class ChatController {
         return {
             data,
             statusCode: 200,
-            statusMsg: ""
+            statusMsg: "채팅 공지 완료"
         };
     }
 

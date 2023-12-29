@@ -61,7 +61,7 @@ export class UserController {
         return {
             data,
             statusCode: 200,
-            statusMsg: "로그인이 완료되었슈 ㅠㅠ"
+            statusMsg: "로그인이 완료되었습니다."
         };
     }
 
