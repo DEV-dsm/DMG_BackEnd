@@ -16,7 +16,7 @@ import { ProfileService } from 'src/profile/profile.service';
     JwtModule.register({
       secret: process.env.SECRETORPRIVATE,
       signOptions: {
-        expiresIn: '2m',
+        expiresIn: '4h',
       },
       verifyOptions: {
         complete: false
